@@ -1,0 +1,81 @@
+
+
+  .wysibb {
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-gray-700);
+    color: var(--bs-light);
+  }
+  
+  .wysibb .wysibb-toolbar {
+    background-color: var(--bs-tertiary-bg-800);
+    border-bottom: 1px solid var(--bs-gray-700);
+  }
+  
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn {
+    color: var(--bs-light);
+    border-color: transparent;
+  }
+
+  .wysibb .wysibb-toolbar-btn .fonticon {
+        color: var(--bs-text);
+  }
+  
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:hover {
+    background-color: var(--bs-tertiary-bg);
+  }
+  
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on,
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn:active {
+    background-color: var(--bs-primary);
+    color: var(--bs-text);
+  }
+  
+  .wysibb .wysibb-text-editor {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-light);
+  }
+  
+  #wbbmodal {
+    background-color: var(--bs-tertiary-bg);
+  }
+  
+  #wbbmodal .wbbm {
+    background-color: var(--bs-tertiary-bg);
+    border: 1px solid var(--bs-tertiary-bg);
+    color: var(--bs-light);
+  }
+  
+  #wbbmodal .wbbm-title {
+    background-color: var(--bs-tertiary-bg);
+    border-bottom: 1px solid var(--bs-tertiary-bg);
+  }
+  
+  #wbbmodal button {
+    background-color: var(--bs-tertiary-bg);
+    color: var(--bs-light);
+    border: 1px solid var(--bs-tertiary-bg);
+  }
+  
+  #wbbmodal .wbb-button {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+  }
+
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn .fonticon {
+    color: var(--bs-tertiary-bg-color)!important;
+    text-shadow: 0 0px 0 #fff!important;
+
+  }
+  
+  
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.on .fonticon {
+    background-color: var(--bs-primary)!important;
+  }
+
+  .wysibb .wysibb-toolbar .wysibb-toolbar-container .wysibb-toolbar-btn.wbb-dropdown:hover {
+    background-color: var(--bs-primary)!important;
+  }
+
+  .wbbm-inperr {
+    font-size: 20px!important;
+  }
