@@ -16,6 +16,8 @@ import spark.Response;
 
 public class Clans extends Shiina {
 
+    public static int pageListingSize = 10;
+
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
@@ -24,7 +26,7 @@ public class Clans extends Shiina {
         ClanQuery clanQuery = new ClanQuery(shiina.mysql);
         int page = 1;
         Boolean hasNext = false;
-        int pageSize = 10;
+        int pageSize = pageListingSize;
         int offset = 0;
 
         if (req.queryParams("page") != null && Validation.isNumeric(req.queryParams("page"))) {

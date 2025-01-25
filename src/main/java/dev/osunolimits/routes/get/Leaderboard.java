@@ -17,6 +17,8 @@ import spark.Response;
 
 public class Leaderboard extends Shiina {
 
+    public static int pageSize = 50;
+
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
@@ -32,7 +34,7 @@ public class Leaderboard extends Shiina {
         if(page == 1) {
             offset = 0;
         } else {
-            offset = (page - 1) * 50;
+            offset = (page - 1) * pageSize;
         }
 
         int mode = 0;
@@ -52,7 +54,7 @@ public class Leaderboard extends Shiina {
             sort = req.queryParams("sort");
         }
 
-        LeaderboardResponse leaderboardResponse = leaderboardQuery.getLeaderboard(sort, mode, 50, offset, country);
+        LeaderboardResponse leaderboardResponse = leaderboardQuery.getLeaderboard(sort, mode, pageSize, offset, country);
 
         shiina.data.put("countries", CountryLeaderboardCache.getOrPut(mode, shiina.mysql));
         shiina.data.put("leaderboard", leaderboardResponse.getLeaderboard());

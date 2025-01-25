@@ -52,6 +52,10 @@ public class GetRankCache extends MySQLRoute {
         res.type("application/json");
         shiina.mysql.close();
 
+        if(rankCacheEntries.size() <= 2) {
+            return GSON.toJson(new ArrayList<>());
+        }
+
         return GSON.toJson(rankCacheEntries);
     }
 

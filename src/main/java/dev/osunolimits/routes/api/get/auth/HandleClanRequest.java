@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.plugins.events.clans.OnUserRequestJoinClanEvent;
 import dev.osunolimits.utils.Validation;
 import spark.Request;
 import spark.Response;
@@ -44,7 +45,9 @@ public class HandleClanRequest extends Shiina {
                             || clanRelCheckRS.getBoolean("in_sh_clan_denied")) {
                         return notFound(res, shiina);
                     }
+
                     shiina.mysql.Exec("INSERT INTO `sh_clan_pending` (`userid`, `clanid`, `request_time`) VALUES (?, ?, ?)", userid, clanid, System.currentTimeMillis() / 1000);
+                    new OnUserRequestJoinClanEvent(clanid, userid, shiina.user.id).callListeners();
                 }
                 break;
 
@@ -54,6 +57,7 @@ public class HandleClanRequest extends Shiina {
             default:
                 return notFound(res, shiina);
         }
+        shiina.mysql.close();
         return "success";
     }
 

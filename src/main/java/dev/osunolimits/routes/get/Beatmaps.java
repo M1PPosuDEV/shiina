@@ -15,6 +15,8 @@ import spark.Response;
 
 public class Beatmaps extends Shiina {
 
+    public static int pageSize = 100;
+
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
@@ -45,7 +47,7 @@ public class Beatmaps extends Shiina {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
 
-        BeatmapResponse beatmapResponse = beatmapQuery.getBeatmaps(page, 100, status, artist, creator, mode);
+        BeatmapResponse beatmapResponse = beatmapQuery.getBeatmaps(page, pageSize, status, artist, creator, mode);
         shiina.data.put("beatmaps", beatmapResponse.getData());
         shiina.data.put("mode", mode);
         shiina.data.put("status", status);

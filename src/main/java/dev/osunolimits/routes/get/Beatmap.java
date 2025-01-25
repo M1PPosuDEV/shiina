@@ -17,6 +17,8 @@ import spark.Response;
 
 public class Beatmap extends Shiina {
 
+    public static int pageSize = 25;
+
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
@@ -50,9 +52,9 @@ public class Beatmap extends Shiina {
         mode = adjustModeIfNeeded(fullBeatmap, mode);
         List<FullBeatmap.BeatmapScore> scores = getBeatmapScores(fullBeatmap, mode, sort, page,shiina);
 
-        boolean hasNextPage = scores.size() == 51;
+        boolean hasNextPage = scores.size() == pageSize + 1;
         if (hasNextPage) {
-            scores.remove(50); // Remove the extra entry
+            scores.remove(pageSize); // Remove the extra entry
         }
 
         fullBeatmap.setScores(scores.toArray(new FullBeatmap.BeatmapScore[0]));
@@ -64,6 +66,7 @@ public class Beatmap extends Shiina {
         shiina.data.put("mode", mode);
         shiina.data.put("sort", sort);
         shiina.data.put("page", page);
+        shiina.data.put("pageSize", pageSize);
         shiina.data.put("hasNextPage", hasNextPage);
 
         return renderTemplate("beatmap.html", shiina, res, req);
@@ -145,7 +148,7 @@ public class Beatmap extends Shiina {
 
     private List<FullBeatmap.BeatmapScore> getBeatmapScores(FullBeatmap fullBeatmap, int mode, String sort, int page, ShiinaRequest shiina) throws Exception {
         String query = getScoreQuery(sort);
-        ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode, 51, ((page - 1) * 50));
+        ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode, pageSize + 1, ((page - 1) * pageSize));
 
         List<FullBeatmap.BeatmapScore> scores = new ArrayList<>();
         while (scoreQuery.next()) {

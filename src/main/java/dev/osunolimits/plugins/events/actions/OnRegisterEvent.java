@@ -1,6 +1,7 @@
-package dev.osunolimits.plugins.events;
+package dev.osunolimits.plugins.events.actions;
 
 import dev.osunolimits.plugins.ShiinaEventListener;
+import dev.osunolimits.plugins.events.ShiinaEvent;
 import lombok.Getter;
 
 @Getter

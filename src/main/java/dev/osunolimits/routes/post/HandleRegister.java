@@ -11,7 +11,7 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.UserInfoCache;
-import dev.osunolimits.plugins.events.OnRegisterEvent;
+import dev.osunolimits.plugins.events.actions.OnRegisterEvent;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.SessionUser;
 import okhttp3.OkHttpClient;
