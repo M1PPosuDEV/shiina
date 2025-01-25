@@ -11,27 +11,6 @@ BEHINDLOGIN=false
 
 #### Legal Notice
 
-Data according to Section 5 TMG:
-
-Marc Andre Herpers
-
-Reinhold-Büttner Straße 5
-47445 Moers
-
-Represented by:
-
-Marc Andre Herpers
-
-Contact Information
-
-Email: [inbox@osunolimits.dev](inbox@osunolimits.dev)
-
-Website: [osunolimits.dev](osunolimits.dev)
-
-Private website owner
-
-No value-added tax (VAT) charged due to the small business scheme
-
 _Disclaimer_
 
 Responsibility for Content
