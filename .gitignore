@@ -24,6 +24,9 @@
 
 target/*
 
+# M1
+docs/
+
 # Shiina-Web
 /.config/logger.env
 /.config/.env
