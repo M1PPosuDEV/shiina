@@ -37,9 +37,11 @@
                                 <i class="fa-solid fa-circle-check"></i>
                                 ${beatmap.passes}
                                 <i class="fa-solid fa-calendar"></i>
+                                <#if beatmap.last_update??>
                                 <span data-timestamp-format="date" data-timestamp="${beatmap.last_update}">
                                     ${beatmap.last_update}
                                 </span>
+                                </#if>
                                 <span class="badge bg-${convertStatusBackColor(beatmap.status)}">
                                     ${convertStatusBack(beatmap.status)}
                                 </span>
@@ -47,7 +49,7 @@
                         </div>
                     </div>
                     <div class="hover-icons mt-2">
-                        <a href="/b/${beatmap.id?c}" class="icon-link">
+                        <a href="/b/${beatmap.id?c}<#if score??>?mode=${score.mode}</#if>" class="icon-link">
                             <i data-bs-toggle="tooltip" data-bs-placement="top" title='View Beatmap'  class="fas fa-eye"></i>
                         </a>
                         <a href="https://osu.direct/api/d/${beatmap.set_id?c}" class="icon-link">

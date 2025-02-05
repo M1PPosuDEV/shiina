@@ -245,20 +245,20 @@
 }
 
 .shiina-ver {
-    font-size: 25px;
+    font-size: 25px!important;
     text-decoration: none;
-    padding: 7.5px;
+    padding: 7.5px!important;
     transition: all 0.2s ease-in-out;
     border-radius: 5px;
-    background-color: var(--bs-sable-bg-subtle);
+    background-color: var(--bs-sable-bg-subtle)!important;
 }
 
 .shiina-ver:hover {
-    background-color: var(--bs-action-border-color);
+    background-color: var(--bs-action-border-color)!important;
 }
 
 .shiina-versel {
-    background-color: var(--bs-action-border-color);
+    background-color: var(--bs-action-border-color)!important;
 }
 
 .leaderboard-panel:hover,
@@ -942,6 +942,10 @@
     font-size: calc((var(--bs-font-size-base) + .3000rem) + .5vw);
 }
 
+.shiina-doc-font-size {
+    font-size: 2rem;
+}
+
 .shiina-follower-count {
     display: flex;
     align-items: center;
@@ -967,6 +971,16 @@
     transition: background-color 0.2s;
 }
 
+.no-button {
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit; 
+}
+
 .shiina-btn-follow {
     margin-top: 0.5rem;
     margin-right: var(--bs-spacer-1)!important;
@@ -989,6 +1003,56 @@
     color: var(--bs-primary-600);
 }
 
+.shiina-background-bg {
+    background-size: cover;
+    background-color: rgba(0, 0, 0, 0.75);
+    background-blend-mode: overlay;
+
+}
+
+@media (max-width: 350px) {
+.shiina-beatmap-favorite {
+    display: none!important;
+}
+}
+
+.shiina-def-cursor {
+    cursor: default!important;
+}
+
+.shiina-beatmap-button i {
+    width: 15px;
+
+}
+
+.shiina-beatmap-stat-show {
+    display: inline-block;
+    padding: 5px;
+    background-color: var(--bs-sable-bg-subtle);
+    border-radius: 5px;
+    cursor: default;
+}
+
+.shiina-beatmap-stat-row {
+    cursor: default;
+}
+
+.shiina-beatmap-stat-show i {
+    width: 15px;
+}
+
+.shiina-beatmap-mapper-panel {
+    padding: 10px;
+    background-color: var(--bs-sable-bg-subtle);
+    border-radius: 5px;
+}
+
+.shiina-beatmap-mapper-panel p {
+    padding: 0;
+    margin: 0;
+}
+
 .shiina-userpage-container span img {
     max-width: 200px;
+
 }

@@ -3,42 +3,39 @@ package dev.osunolimits.routes.api.get;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
 
 public class GetRankCache extends MySQLRoute {
 
-    private final Gson GSON;
-
     private final String GET_RANK_CACHE = "SELECT * FROM `sh_rank_cache` WHERE `mode` = ? AND `user_id` = ?;";
-
-    public GetRankCache() {
-        GSON = new Gson();
-    }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = getRequest();
+        ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("mode", "int", "missing or invalid");
         }
 
         Integer id = null;
         if (req.queryParams("id") != null && Validation.isNumeric(req.queryParams("id"))) {
             id = Integer.parseInt(req.queryParams("id"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("id", "int", "missing");
         }
 
-        if (id == null) {
-            shiina.mysql.close();
-            return notFound(res, shiina);
+        if (shiinaAPIHandler.hasIssues()) {
+            return shiinaAPIHandler.renderIssues(shiina, res);
         }
 
         ResultSet rankCacheResultSet = shiina.mysql.Query(GET_RANK_CACHE, mode, id);
@@ -49,14 +46,13 @@ public class GetRankCache extends MySQLRoute {
             rankCacheEntry.setRank(rankCacheResultSet.getInt("rank"));
             rankCacheEntries.add(rankCacheEntry);
         }
-        res.type("application/json");
-        shiina.mysql.close();
+      
 
         if(rankCacheEntries.size() <= 2) {
-            return GSON.toJson(new ArrayList<>());
+            return shiinaAPIHandler.renderJSON(new ArrayList<>(), shiina, res);
         }
 
-        return GSON.toJson(rankCacheEntries);
+        return shiinaAPIHandler.renderJSON(rankCacheEntries, shiina, res);
     }
 
     @Data

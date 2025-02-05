@@ -3,7 +3,6 @@ package dev.osunolimits.routes.get;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,7 +48,7 @@ public class User extends Shiina {
         }
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
 

@@ -26,7 +26,7 @@
                     <img src="${avatarServer}/${user.id?c}" class="w-100" alt="Avatar">
                 </div>
                 <div class="col col-auto">
-                    <form id="avatar-upload-form" action="/settings/avatar" method="post" enctype="multipart/form-data" class="w-100" onsubmit="return handleAvatarUpload(event)">
+                    <form id="avatar-upload-form" data-turbo="false" action="/settings/avatar" method="post" enctype="multipart/form-data" class="w-100" onsubmit="return handleAvatarUpload(event)">
                         <div class="form-group">
                             <input type="file" name="avatar" id="avatar" accept=".png" class="form-control">
                         </div>

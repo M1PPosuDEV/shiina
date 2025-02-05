@@ -1,4 +1,4 @@
-package dev.osunolimits.api;
+package dev.osunolimits.externals;
 
 import java.io.IOException;
 import okhttp3.OkHttpClient;

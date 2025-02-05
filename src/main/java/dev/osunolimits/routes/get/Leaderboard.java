@@ -38,7 +38,7 @@ public class Leaderboard extends Shiina {
         }
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
 

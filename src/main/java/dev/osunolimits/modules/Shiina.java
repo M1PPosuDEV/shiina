@@ -22,7 +22,7 @@ public class Shiina implements Route {
         res.header("Content-Type", "text/html; charset=utf-8");
         if(shiina.mysql != null) shiina.mysql.close();
 
-        shiina.data.put("docs",ShiinaDocs.docs);
+        shiina.data.put("docs", ShiinaDocs.docs);
         try {
             Template templateFree = WebServer.freemarkerCfg.getTemplate(template);
             try (StringWriter out = new StringWriter()) {

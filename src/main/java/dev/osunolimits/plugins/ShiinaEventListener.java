@@ -1,5 +1,6 @@
 package dev.osunolimits.plugins;
 
+import dev.osunolimits.plugins.events.actions.OnBeatmapFavoriteEvent;
 import dev.osunolimits.plugins.events.actions.OnRegisterEvent;
 import dev.osunolimits.plugins.events.admin.OnAddDonorEvent;
 import dev.osunolimits.plugins.events.admin.OnRankBeatmapEvent;
@@ -18,6 +19,8 @@ public class ShiinaEventListener {
 
     // ACTIONS
     public void onRegisterEvent(OnRegisterEvent event) { }
+
+    public void onBeatmapFavoriteEvent(OnBeatmapFavoriteEvent event) {}
 
     // CLANS
     public void onUserJoinClanEvent(OnUserJoinClanEvent event) { }

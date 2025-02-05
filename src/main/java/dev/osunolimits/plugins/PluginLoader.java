@@ -7,6 +7,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -62,6 +64,31 @@ public class PluginLoader {
                     return;
                 }
 
+                Enumeration<JarEntry> entries = jarFile.entries();
+                while (entries.hasMoreElements()) {
+                    JarEntry entry = entries.nextElement();
+                    String entryName = entry.getName();
+
+                    if (entryName.startsWith("modules/") &&
+                            (entryName.endsWith(".html") || entryName.endsWith(".ftl"))) {
+
+                        String[] pathParts = entryName.split("/");
+                        if (pathParts.length >= 3) { // modules/subfolder/file
+                            String subfolder = pathParts[1];
+                            String fileName = pathParts[pathParts.length - 1];
+
+                            Path targetDir = Path.of("templates/modules/plugins", subfolder);
+                            Files.createDirectories(targetDir);
+
+                            Path targetFile = targetDir.resolve(fileName);
+                            try (InputStream fileInputStream = jarFile.getInputStream(entry)) {
+                                Files.copy(fileInputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                                log.info("Copied template file: " + targetFile);
+                            }
+                        }
+                    }
+                }
+
                 loadAndEnablePlugin(jarFilePath, mainClass, pluginName);
             }
         } catch (Exception e) {
@@ -71,7 +98,7 @@ public class PluginLoader {
 
     private void loadAndEnablePlugin(String jarFilePath, String mainClass, String pluginName) {
         try {
-            URL[] urls = {Paths.get(jarFilePath).toUri().toURL()};
+            URL[] urls = { Paths.get(jarFilePath).toUri().toURL() };
             URLClassLoader classLoader = new URLClassLoader(urls, PluginLoader.class.getClassLoader());
 
             Class<?> clazz = Class.forName(mainClass, true, classLoader);

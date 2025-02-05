@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 import dev.osunolimits.modules.Shiina;
+import dev.osunolimits.utils.Validation;
 
 public class GetBmThumbnail implements Route {
 
@@ -21,8 +22,18 @@ public class GetBmThumbnail implements Route {
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
-        String setId = req.queryParams("setId");
-        if (setId == null) return "Invalid set ID";
+        ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
+
+        String setId = null;
+        if (req.queryParams("setId") != null && Validation.isNumeric(req.queryParams("setId"))) {
+            setId = req.queryParams("setId");
+        } else {
+            shiinaAPIHandler.addRequiredParameter("setId", "int", "missing");
+        }
+
+        if (shiinaAPIHandler.hasIssues()) {
+            return shiinaAPIHandler.renderIssuesNoSQL(res);
+        }
 
         Shiina.setCachePolicy(res, 7);
         

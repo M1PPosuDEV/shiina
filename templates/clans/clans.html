@@ -2,7 +2,7 @@
 
     <div class="container">
         <div class="card">
-            <div class="row m-2 m-lg-0 justify-content-center justify-content-lg-start">
+            <div class="row m-2 m-lg-0 shiina-def-cursor justify-content-center justify-content-lg-start">
                 <#include "/freemarker/selector.ftl">
                     <div
                         class="my-2 col-12 col-md-auto my-lg-0 col col-auto d-flex align-items-center justify-content-center">
@@ -63,9 +63,7 @@
                                 <li style="list-style: none;">
                                     <a href="/clan/${clan.id}?mode=${mode}" class="bg-secondary m-2 p-2 row clan-panel"
                                         style="border-radius: 5px;">
-                                        <span class="col-auto"
-                                            style="font-size: calc((var(--bs-font-size-base) + .3000rem) + .5vw);">#${offset
-                                            + clanC}</span>
+                                        <span class="col-auto shiina-rank-font">#${offset + clanC}</span>
                                         <span class="col col-auto d-flex align-items-center">
                                             <button class="clan-badge btn btn-primary">[${clan.tag}]</button>
                                             <span class="ms-2">${clan.name}</span>
@@ -79,7 +77,7 @@
                                                 ${clan.competitionValue}<#switch sort>
                                                     <#case "totalpp">pp<#break>
                                                             <#case "avgpp">pp<#break>
-                                                                    <#case "rankedscore">Score<#break>
+                                                                    <#case "rankedscore"> Score<#break>
                                                                             <#case "acc">%<#break>
                                                 </#switch>
                                             </span>

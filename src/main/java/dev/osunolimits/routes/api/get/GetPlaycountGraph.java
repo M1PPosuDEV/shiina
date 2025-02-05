@@ -3,42 +3,39 @@ package dev.osunolimits.routes.api.get;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
 
 public class GetPlaycountGraph extends MySQLRoute {
 
-    private final Gson GSON;
-
     private final String GET_PLAYCOUNT_GRAPH = "WITH last_12_months AS ( SELECT DATE_SUB(CURDATE(), INTERVAL (seq - 1) MONTH) AS month_date FROM ( SELECT @row := @row + 1 AS seq FROM (SELECT @row := 0) r, information_schema.columns LIMIT 12 ) AS months ) SELECT DATE_FORMAT(l.month_date, '%b %Y') AS date, COALESCE(COUNT(s.id), 0) AS plays FROM last_12_months l LEFT JOIN `scores` s ON MONTH(s.play_time) = MONTH(l.month_date) AND YEAR(s.play_time) = YEAR(l.month_date) AND s.userid = ? AND s.mode = ? GROUP BY l.month_date ORDER BY l.month_date;";
-
-    public GetPlaycountGraph() {
-        GSON = new Gson();
-    }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = getRequest();
+        ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("mode", "int", "missing or invalid");
         }
 
         Integer id = null;
         if (req.queryParams("id") != null && Validation.isNumeric(req.queryParams("id"))) {
             id = Integer.parseInt(req.queryParams("id"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("id", "int", "missing");
         }
 
-        if (id == null) {
-            shiina.mysql.close();
-            return notFound(res, shiina);
+        if (shiinaAPIHandler.hasIssues()) {
+            return shiinaAPIHandler.renderIssues(shiina, res);
         }
 
         ResultSet playcountGraphResultSet = shiina.mysql.Query(GET_PLAYCOUNT_GRAPH, id, mode);
@@ -51,10 +48,7 @@ public class GetPlaycountGraph extends MySQLRoute {
             playcountGraphEntries.add(playcountGraphEntry);
         }
 
-        res.type("application/json");
-        shiina.mysql.close();
-
-        return GSON.toJson(playcountGraphEntries);
+        return shiinaAPIHandler.renderJSON(playcountGraphEntries, shiina, res);
     }
 
     @Data

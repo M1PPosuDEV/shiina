@@ -42,7 +42,7 @@ public class Auth {
         try {
             return BCrypt.checkpw(md5(raw), bcrypt);
         } catch (Exception e) {
-            App.log.error("Failed to encode MD5", e);
+            App.log.error("Failed to check hash using BCrypt", e);
             return null;
         }
     }

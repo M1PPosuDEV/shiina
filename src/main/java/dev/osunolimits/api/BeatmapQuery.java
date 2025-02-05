@@ -37,13 +37,13 @@ public class BeatmapQuery {
 
     int maxSize;
     private OkHttpClient client;
+
     public BeatmapQuery() {
         client = new OkHttpClient.Builder()
-    .addNetworkInterceptor(new CacheInterceptor(30, TimeUnit.MINUTES))
-    .cache(new Cache(new File(".cache/beatmaps"), 100L * 1024L * 1024L))
-    .connectionPool(new ConnectionPool(50, 10, TimeUnit.SECONDS)).build(); 
+                .addNetworkInterceptor(new CacheInterceptor(30, TimeUnit.MINUTES))
+                .cache(new Cache(new File(".cache/beatmaps"), 100L * 1024L * 1024L))
+                .connectionPool(new ConnectionPool(50, 10, TimeUnit.SECONDS)).build();
     }
-
 
     private int parameter = 0;
 
@@ -56,7 +56,8 @@ public class BeatmapQuery {
         }
     }
 
-    public BeatmapResponse getBeatmaps(int page, int pageSize, int status, Optional<String> artist, Optional<String> creator, int mode) {
+    public BeatmapResponse getBeatmaps(int page, int pageSize, int status, Optional<String> artist,
+            Optional<String> creator, int mode) {
         String url = "/v2/maps";
         url += getParameter() + "page=" + page;
         url += getParameter() + "page_size=" + pageSize;
@@ -64,14 +65,15 @@ public class BeatmapQuery {
         if (status != 999) {
             url += getParameter() + "status=" + status;
         }
-        // Use isPresent() to check if Optional has a value
+
         if (artist.isPresent()) {
             url += getParameter() + "artist=" + artist.get();
         }
-        // Use isPresent() to check if Optional has a value
+
         if (creator.isPresent()) {
             url += getParameter() + "creator=" + creator.get();
         }
+
         if (mode != 999) {
             url += getParameter() + "mode=" + mode;
         }

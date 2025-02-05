@@ -36,7 +36,7 @@ public class Clans extends Shiina {
         offset = (page - 1) * pageSize;
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
 

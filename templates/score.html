@@ -35,11 +35,13 @@
                             <small>Score</small>
                             <h2>${score.score}</h2>
                         </div>
+                        <#if score.mods?size != 0>
                         <div class="col-6">
                             <small>Mods</small>
                             <#assign passedMods=score.mods>
                             <h2 class="text-warning"><#include "/freemarker/modconvert.ftl"></h2>
                         </div>
+                        </#if>
                     </div>
 
                     <!-- Download and Report Buttons -->

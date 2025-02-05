@@ -22,11 +22,10 @@ public class UserQuery {
 
     public UserQuery() {
         client = new OkHttpClient.Builder()
-    .addNetworkInterceptor(new CacheInterceptor(5, TimeUnit.MINUTES))
-    .cache(new Cache(new File(".cache/users"), 100L * 1024L * 1024L))
-    .connectionPool(new ConnectionPool(200, 10, TimeUnit.SECONDS)).build(); 
+                .addNetworkInterceptor(new CacheInterceptor(5, TimeUnit.MINUTES))
+                .cache(new Cache(new File(".cache/users"), 100L * 1024L * 1024L))
+                .connectionPool(new ConnectionPool(200, 10, TimeUnit.SECONDS)).build();
     }
-
 
     public FullUser getUser(int id) {
         String url = "/v1/get_player_info?scope=all&id=" + id;
@@ -42,6 +41,5 @@ public class UserQuery {
         }
         return null;
     }
-
 
 }

@@ -3,8 +3,6 @@ package dev.osunolimits.routes.api.get;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
@@ -32,33 +30,37 @@ public class GetFirstPlaces extends MySQLRoute {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = getRequest();
+        ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
 
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("mode", "int", "missing or invalid");
         }
 
         Integer id = null;
         if (req.queryParams("id") != null && Validation.isNumeric(req.queryParams("id"))) {
             id = Integer.parseInt(req.queryParams("id"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("id", "int", "missing or invalid");
         }
 
         Integer offset = 0;
         if (req.queryParams("offset") != null && Validation.isNumeric(req.queryParams("offset"))) {
             offset = Integer.parseInt(req.queryParams("offset"));
+        }else {
+            shiinaAPIHandler.addRequiredParameter("offset", "int", "missing or invalid");
         }
 
-        if (id == null) {
-            shiina.mysql.close();
-            return notFound(res, shiina);
+        if (shiinaAPIHandler.hasIssues()) {
+            return shiinaAPIHandler.renderIssues(shiina, res);
         }
 
-        // Fetch first places
         ArrayList<FirstPlace> firstPlaces = new ArrayList<>();
         FirstPlacesResponse response = new FirstPlacesResponse();
         boolean hasNextPage = false;
 
-        // Fetch first places based on the query
         ResultSet firstPlacesQuery = shiina.mysql.Query(GET_FIRST_PLACES, id, mode, 6, offset);
         while (firstPlacesQuery.next()) {
             FirstPlace firstPlace = new FirstPlace();
@@ -77,13 +79,11 @@ public class GetFirstPlaces extends MySQLRoute {
             firstPlaces.add(firstPlace);
         }
 
-        // Check if there is a next page
         if (firstPlaces.size() == 6) {
             hasNextPage = true;
-            firstPlaces.remove(5); // Remove the extra entry
+            firstPlaces.remove(5); 
         }
 
-        // Fetch count of first places based on mode
         ResultSet countQuery = shiina.mysql.Query(COUNT_FIRST_PLACES, id, mode);
         if (countQuery.next()) {
             response.setCount(countQuery.getInt("first_place_count"));
@@ -93,10 +93,7 @@ public class GetFirstPlaces extends MySQLRoute {
         response.setStatus("success");
         response.setHasNextPage(hasNextPage);
 
-        res.type("application/json");
-        Gson gson = new Gson();
-        shiina.mysql.close();
-        return gson.toJson(response);
+        return shiinaAPIHandler.renderJSON(response, shiina, res);
     }
 
     @Data

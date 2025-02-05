@@ -1,4 +1,7 @@
 **Shiina-Web:**
+
+[![](https://dcbadge.limes.pink/api/server/Dr79DU9kbD)](https://discord.gg/Dr79DU9kbD)
+
 The new version of shiina for **bancho.py**
 
 ### **Requirements**
@@ -36,8 +39,6 @@ The new version of shiina for **bancho.py**
 <img width="25" src="https://osu-server-list.com/res/servers/M1PPosu.webp"></img> M1PPosu - [m1pposu.dev](https://m1pposu.dev)
 
 <img width="25" src="https://osu-server-list.com/res/servers/4ayo.webp"></img> 4ayo - [4ayo.ovh](https://4ayo.ovh)
-
-<img width="25" src="https://osu-server-list.com/res/servers/Miausu.webp"></img> Miausu - [miausu.pw](https://miausu.pw)
 
 ### **Technical:**
 

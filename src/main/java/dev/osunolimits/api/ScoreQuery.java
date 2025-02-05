@@ -69,6 +69,7 @@ public class ScoreQuery {
             score.setUsername(scoreRs.getString("name"));
             score.setCountry(scoreRs.getString("country"));
             score.setPerfect(scoreRs.getInt("perfect"));
+
             Beatmap beatmap = new Beatmap();
             beatmap.setId(scoreRs.getInt("bm_id"));
             beatmap.setSet_id(scoreRs.getInt("set_id"));
@@ -80,7 +81,9 @@ public class ScoreQuery {
             beatmap.setDiff(scoreRs.getFloat("diff"));
             beatmap.setLast_update(scoreRs.getString("last_update"));
             beatmap.setStatus(scoreRs.getInt("bm_status"));
+
             score.setBeatmap(beatmap);
+            
             return score;
         }
 

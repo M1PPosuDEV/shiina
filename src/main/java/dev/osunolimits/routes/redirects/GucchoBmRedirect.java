@@ -6,7 +6,8 @@ import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import spark.Request;
 import spark.Response;
 
-public class GucchoBmRedirect extends Shiina{
+public class GucchoBmRedirect extends Shiina {
+
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
@@ -21,7 +22,7 @@ public class GucchoBmRedirect extends Shiina{
             return notFound(res, shiina);
         }
 
-        res.redirect("/b/"+id);
-        return notFound(res, shiina);
+        return redirect(res, shiina, "/b/"+id);
     }
+
 }

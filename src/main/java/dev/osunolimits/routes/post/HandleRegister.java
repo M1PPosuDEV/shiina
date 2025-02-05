@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 
 import com.google.gson.Gson;
 
-import dev.osunolimits.api.GeoLocQuery;
+import dev.osunolimits.externals.GeoLocQuery;
 import dev.osunolimits.externals.TurnstileQuery;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;

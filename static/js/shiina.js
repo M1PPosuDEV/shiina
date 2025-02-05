@@ -587,7 +587,6 @@ function loadScorePanel(grade, mapId, score, pp, acc, maxCombo, playTime, name, 
 function getBsPrimaryColor() {
     const element = document.getElementsByClassName('bg-primary')[0];
     const computedStyle = window.getComputedStyle(element);
-    console.log(computedStyle.backgroundColor);
     return computedStyle.backgroundColor;
 }
 

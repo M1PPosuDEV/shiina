@@ -10,6 +10,7 @@ import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
+import dev.osunolimits.utils.osu.OsuConverter;
 import spark.Request;
 import spark.Response;
 
@@ -24,7 +25,7 @@ public class Beatmaps extends Shiina {
         BeatmapQuery beatmapQuery = new BeatmapQuery();
         int page = 1;
 
-        if (req.queryParams("page") != null && Validation.isNumeric(req.queryParams("page"))) {
+        if (req.queryParams("page") != null && Validation.isNumeric(req.queryParams("page")) && Integer.parseInt(req.queryParams("page")) > 0) {
             page = Integer.parseInt(req.queryParams("page"));
         }
 
@@ -43,7 +44,7 @@ public class Beatmaps extends Shiina {
             creator = Optional.of(req.queryParams("creator"));
         }
         int mode = 0;
-        if (req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))) {
+        if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
 

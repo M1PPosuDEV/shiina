@@ -57,6 +57,15 @@ public class Beatmap extends Shiina {
             scores.remove(pageSize); // Remove the extra entry
         }
 
+        if(shiina.loggedIn) {
+            ResultSet favoriteCheckRs = shiina.mysql.Query("SELECT 1 FROM `favourites` WHERE `userid` = ? AND `setid` = ? LIMIT 1;", shiina.user.id, fullBeatmap.getSetId());
+            if(favoriteCheckRs.next()) {
+                shiina.data.put("favorite", true);
+            }else {
+                shiina.data.put("favorite", false);
+            }
+        }
+
         fullBeatmap.setScores(scores.toArray(new FullBeatmap.BeatmapScore[0]));
         SEOBuilder seo = new SEOBuilder(fullBeatmap.getTitle(), App.customization.get("homeDescription").toString(),
                 App.env.get("DOMAIN") + "/api/v1/thumb?setId=" + fullBeatmap.getSetId());
@@ -87,11 +96,17 @@ public class Beatmap extends Shiina {
     }
 
     private String getSort(Request req) {
-        return req.queryParams("sort") != null ? req.queryParams("sort") : "pp";
+        String sort = "pp";
+
+        if(req.queryParams("sort") == null) {
+            return sort;
+        }
+
+        return req.queryParams("sort").equals("score") ? sort =  "score" : sort;
     }
 
     private int getPage(Request req) {
-        if (req.queryParams("page") != null && Validation.isNumeric(req.queryParams("page"))) {
+        if (req.queryParams("page") != null && Validation.isNumeric(req.queryParams("page")) && Integer.parseInt(req.queryParams("page")) > 0) {
             return Integer.parseInt(req.queryParams("page"));
         }
         return 1;
@@ -99,14 +114,15 @@ public class Beatmap extends Shiina {
 
     private List<FullBeatmap.MapDiff> getBeatmapDiffs(int id, ShiinaRequest shiina) throws Exception {
         List<FullBeatmap.MapDiff> diffs = new ArrayList<>();
-        ResultSet queryDiffs = shiina.mysql.Query(
-                "SELECT `id`, `version` FROM `maps` WHERE set_id = ( SELECT set_id FROM `maps` WHERE id = ? ) ORDER BY `maps`.`diff` ASC;",
-                id);
-        while (queryDiffs.next()) {
-            FullBeatmap.MapDiff diff = new FullBeatmap().new MapDiff();
-            diff.setId(queryDiffs.getInt("id"));
-            diff.setVersion(queryDiffs.getString("version"));
-            diffs.add(diff);
+        try (ResultSet queryDiffs = shiina.mysql.Query(
+                "SELECT `id`, `version` FROM `maps` WHERE set_id = (SELECT set_id FROM `maps` WHERE id = ?) ORDER BY `maps`.`diff` ASC;",
+                id)) {
+            while (queryDiffs.next()) {
+                FullBeatmap.MapDiff diff = new FullBeatmap().new MapDiff();
+                diff.setId(queryDiffs.getInt("id"));
+                diff.setVersion(queryDiffs.getString("version"));
+                diffs.add(diff);
+            }
         }
         return diffs;
     }
@@ -148,21 +164,21 @@ public class Beatmap extends Shiina {
 
     private List<FullBeatmap.BeatmapScore> getBeatmapScores(FullBeatmap fullBeatmap, int mode, String sort, int page, ShiinaRequest shiina) throws Exception {
         String query = getScoreQuery(sort);
-        ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode, pageSize + 1, ((page - 1) * pageSize));
-
         List<FullBeatmap.BeatmapScore> scores = new ArrayList<>();
-        while (scoreQuery.next()) {
-            FullBeatmap.BeatmapScore score = new FullBeatmap().new BeatmapScore();
-            score.setId(scoreQuery.getInt("id"));
-            score.setPp(scoreQuery.getInt("pp"));
-            score.setScore(scoreQuery.getLong("score"));
-            score.setGrade(scoreQuery.getString("grade"));
-            score.setPlayTime(scoreQuery.getString("play_time"));
-            score.setMods(OsuConverter.convertMods(scoreQuery.getInt("mods")));
-            score.setUserId(scoreQuery.getInt("userid"));
-            score.setName(scoreQuery.getString("name"));
-            score.setCountry(scoreQuery.getString("country"));
-            scores.add(score);
+        try (ResultSet scoreQuery = shiina.mysql.Query(query, fullBeatmap.getMd5(), mode, mode, pageSize + 1, ((page - 1) * pageSize))) {
+            while (scoreQuery.next()) {
+                FullBeatmap.BeatmapScore score = new FullBeatmap().new BeatmapScore();
+                score.setId(scoreQuery.getInt("id"));
+                score.setPp(scoreQuery.getInt("pp"));
+                score.setScore(scoreQuery.getLong("score"));
+                score.setGrade(scoreQuery.getString("grade"));
+                score.setPlayTime(scoreQuery.getString("play_time"));
+                score.setMods(OsuConverter.convertMods(scoreQuery.getInt("mods")));
+                score.setUserId(scoreQuery.getInt("userid"));
+                score.setName(scoreQuery.getString("name"));
+                score.setCountry(scoreQuery.getString("country"));
+                scores.add(score);
+            }
         }
         return scores;
     }
@@ -170,17 +186,46 @@ public class Beatmap extends Shiina {
     private String getScoreQuery(String sort) {
         switch (sort) {
             case "pp":
-                return "SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods, u.name, u.country, u.priv " +
-                        "FROM scores AS `s` LEFT JOIN users AS `u` ON s.userid = u.id " +
-                        "WHERE s.map_md5 = ? AND s.pp = (SELECT MAX(pp) FROM scores WHERE map_md5 = s.map_md5 AND s.status = 2 AND userid = s.userid) " +
-                        "AND s.mode = ? ORDER BY `s`.`pp` DESC, `s`.`play_time` ASC LIMIT ? OFFSET ?";
+                return """
+                    SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods, 
+                           u.name, u.country, u.priv
+                    FROM scores AS s
+                    LEFT JOIN users AS u ON s.userid = u.id
+                    WHERE s.map_md5 = ? AND s.status = 2 AND s.mode = ?
+                    AND s.pp = (
+                        SELECT MAX(inner_s.pp) 
+                        FROM scores AS inner_s 
+                        WHERE inner_s.map_md5 = s.map_md5 
+                        AND inner_s.userid = s.userid 
+                        AND inner_s.status = 2 
+                        AND inner_s.mode = ?
+                    )
+                    ORDER BY s.pp DESC, s.play_time ASC
+                    LIMIT ? OFFSET ?
+                    """;
+    
             case "score":
-                return "SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods, u.name, u.country, u.priv " +
-                        "FROM scores AS `s` LEFT JOIN users AS `u` ON s.userid = u.id " +
-                        "WHERE s.map_md5 = ? AND s.pp = (SELECT MAX(pp) FROM scores WHERE map_md5 = s.map_md5 AND s.status = 2 AND userid = s.userid) " +
-                        "AND s.mode = ? ORDER BY `s`.`score` DESC, `s`.`play_time` ASC LIMIT ? OFFSET ?";
+                return """
+                    SELECT s.id, s.pp, s.score, s.grade, s.play_time, s.userid, s.mods, 
+                           u.name, u.country, u.priv
+                    FROM scores AS s
+                    LEFT JOIN users AS u ON s.userid = u.id
+                    WHERE s.map_md5 = ? AND s.status = 2 AND s.mode = ?
+                    AND s.score = (
+                        SELECT MAX(inner_s.score) 
+                        FROM scores AS inner_s 
+                        WHERE inner_s.map_md5 = s.map_md5 
+                        AND inner_s.userid = s.userid 
+                        AND inner_s.status = 2 
+                        AND inner_s.mode = ?
+                    )
+                    ORDER BY s.score DESC, s.play_time ASC
+                    LIMIT ? OFFSET ?
+                    """;
+    
             default:
                 return "";
         }
     }
+    
 }

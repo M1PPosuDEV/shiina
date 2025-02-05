@@ -135,7 +135,7 @@ public class ClanQuery {
     }
 
     public SingleClanResponse getClan(int mode, int id) throws SQLException {
-        if (mode > 8)
+        if (mode > 8 || mode == 7 || mode < 0)
             return null;
 
         ResultSet rs = mysql.Query(GETCLAN_SINGLE, String.valueOf(mode), String.valueOf(mode), String.valueOf(mode),

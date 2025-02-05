@@ -3,8 +3,6 @@ package dev.osunolimits.routes.api.get;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
-import com.google.gson.Gson;
-
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
@@ -14,12 +12,6 @@ import spark.Request;
 import spark.Response;
 
 public class GetPlayerScores extends MySQLRoute {
-
-    private final Gson GSON;
-
-    public GetPlayerScores() {
-        GSON = new Gson();
-    }
 
     private final String GET_PLAYER_SCORES_RECENT =
         "SELECT s.id AS score_id, s.userid, s.map_md5, m.id AS map_id, " +
@@ -43,14 +35,17 @@ public class GetPlayerScores extends MySQLRoute {
     @Override
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = getRequest();
-        // Get scope (recent or best)
+        ShiinaAPIHandler shiinaAPIHandler = new ShiinaAPIHandler();
+
         String scope = req.queryParams("scope");
-        if (scope == null || (!scope.equals("recent") && !scope.equals("best"))) {
-            shiina.mysql.close();
-            return notFound(res, shiina);
+        if(scope == null) {
+            shiinaAPIHandler.addRequiredParameter("scope", "string", "missing");
         }
 
-        // Get mode, user_id, limit, and offset from request
+        if(scope == null || (!scope.equals("recent") && !scope.equals("best"))) {
+            shiinaAPIHandler.addRequiredParameter("scope", "string", "invalid");
+        }
+
         int mode = req.queryParams("mode") != null && Validation.isNumeric(req.queryParams("mode"))
                 ? Integer.parseInt(req.queryParams("mode"))
                 : 0;
@@ -68,23 +63,24 @@ public class GetPlayerScores extends MySQLRoute {
                 : 5;
 
         if (id == null) {
-            shiina.mysql.close();
-            return notFound(res, shiina);
+            shiinaAPIHandler.addRequiredParameter("id", "int", "missing");
         }
 
-        // Determine the correct SQL query based on the scope
+        if (shiinaAPIHandler.hasIssues()) {
+            return shiinaAPIHandler.renderIssues(shiina, res);
+        }
+
         String getScoresQuery = scope.equals("recent") ? GET_PLAYER_SCORES_RECENT : GET_PLAYER_SCORES_BEST;
 
-        // Fetch player scores
         ArrayList<PlayerScore> playerScores = new ArrayList<>();
         PlayerScoresResponse response = new PlayerScoresResponse();
+
         boolean hasNextPage = false;
         boolean isBest = scope.equals("best");
         int iteration = offset;
-        // Execute the query to fetch scores
+
         ResultSet scoresQuery = shiina.mysql.Query(getScoresQuery, id, mode, limit + 1, offset);
         while (scoresQuery.next()) {
-          
             PlayerScore score = new PlayerScore();
             if (isBest) {
                 score.setWeight(Math.floor(Math.pow(0.95, iteration) * 100));
@@ -105,10 +101,8 @@ public class GetPlayerScores extends MySQLRoute {
             score.setPlay_time(scoresQuery.getString("play_time"));
             playerScores.add(score);
             iteration++;
-           
         }
-        shiina.mysql.close();
-
+        
         if (playerScores.size() > limit) {
             hasNextPage = true;
             playerScores.remove((int) limit); 
@@ -118,10 +112,7 @@ public class GetPlayerScores extends MySQLRoute {
         response.setStatus("success");
         response.setHasNextPage(hasNextPage);
 
-        res.type("application/json");
-        shiina.mysql.close();
-        
-        return GSON.toJson(response);
+        return shiinaAPIHandler.renderJSON(response, shiina, res);
     }
 
     @Data

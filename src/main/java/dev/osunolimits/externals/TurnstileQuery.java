@@ -10,9 +10,12 @@ import okhttp3.RequestBody;
 
 public class TurnstileQuery {
 
-    private OkHttpClient client;
+    private final OkHttpClient client;
+    private final Gson gson;
+    
     public TurnstileQuery(OkHttpClient client) {
         this.client = client;
+        this.gson = new Gson();
     }
 
     public class TurnstileRespone {
@@ -36,7 +39,6 @@ public class TurnstileQuery {
 
         try {
             String response = client.newCall(request).execute().body().string();
-            Gson gson = new Gson();
             TurnstileRespone turnstileRespone = gson.fromJson(response, TurnstileRespone.class);
             return turnstileRespone;
         } catch (Exception e) {

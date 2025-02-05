@@ -40,7 +40,7 @@ public class PubSubHandler extends Shiina {
     public Object handle(Request req, Response res) throws Exception {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
 
-        if (shiina.user == null) {
+        if (shiina.user == null || !shiina.loggedIn) {
             return redirect(res, shiina, "/login");
         }
 

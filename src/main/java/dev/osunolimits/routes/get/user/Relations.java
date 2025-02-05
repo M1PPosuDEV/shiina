@@ -29,22 +29,23 @@ public class Relations extends Shiina {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         shiina.data.put("actNav", 0);
 
-        if(!shiina.loggedIn) {
+        if (!shiina.loggedIn) {
             res.redirect("/login");
             return notFound(res, shiina);
         }
 
-        if(req.queryParams("info") != null) {
+        if (req.queryParams("info") != null) {
             shiina.data.put("info", req.queryParams("info"));
         }
 
-        if(req.queryParams("error") != null) {
+        if (req.queryParams("error") != null) {
             shiina.data.put("error", req.queryParams("error"));
-        }   
+        }
 
-        ResultSet relations = shiina.mysql.Query(RELATION_QUERY, shiina.user.id, shiina.user.id, shiina.user.id, shiina.user.id, shiina.user.id, shiina.user.id);
+        ResultSet relations = shiina.mysql.Query(RELATION_QUERY, shiina.user.id, shiina.user.id, shiina.user.id,
+                shiina.user.id, shiina.user.id, shiina.user.id);
         ArrayList<Relation> relationsList = new ArrayList<>();
-        while(relations.next()) {
+        while (relations.next()) {
             Relation relation = new Relation();
             relation.id = relations.getInt("id");
             relation.name = relations.getString("name");
@@ -52,9 +53,9 @@ public class Relations extends Shiina {
             relation.relationship_status = relations.getString("status");
             relationsList.add(relation);
         }
-shiina.data.put("seo", new SEOBuilder("Relations", App.customization.get("homeDescription").toString()));
+        shiina.data.put("seo", new SEOBuilder("Relations", App.customization.get("homeDescription").toString()));
         shiina.data.put("relations", relationsList);
         return renderTemplate("user/relations.html", shiina, res, req);
     }
-    
+
 }

@@ -2,6 +2,8 @@ package dev.osunolimits.utils.osu;
 
 import java.util.ArrayList;
 
+import dev.osunolimits.utils.Validation;
+
 public class OsuConverter {
     public static String convertStatus(String status) {
         switch (status) {
@@ -150,6 +152,15 @@ public class OsuConverter {
     }
 
     public static String[] modeArray = { "OSU", "OSURX", "OSUAP", "TAIKO", "CATCH", "MANIA", "TAIKORX", "CATCHRX" };
+
+    public static boolean checkForValidMode(String modeStr) {
+        if(modeStr == null) return false;
+        if(!Validation.isNumeric(modeStr)) return false;
+
+        int mode = Integer.parseInt(modeStr);
+
+        return mode >= 0 && mode <= 8 && mode != 7;
+    }
 
     public static String convertMode(String mode) {
         switch (mode.toLowerCase()) {
