@@ -18,7 +18,7 @@ import ch.qos.logback.classic.Logger;
 public class PluginLoader {
 
     private static final String PLUGINS_DIR = "plugins/";
-    private static Logger log = (Logger) LoggerFactory.getLogger(PluginLoader.class);
+    private static Logger log = (Logger) LoggerFactory.getLogger("PluginLoader");
 
     public void loadPlugins() {
         try {
@@ -64,6 +64,8 @@ public class PluginLoader {
                     return;
                 }
 
+                Logger logger = (Logger) LoggerFactory.getLogger("Plugin [" + pluginName + "]");
+
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();
@@ -83,20 +85,20 @@ public class PluginLoader {
                             Path targetFile = targetDir.resolve(fileName);
                             try (InputStream fileInputStream = jarFile.getInputStream(entry)) {
                                 Files.copy(fileInputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
-                                log.info("Copied template file: " + targetFile);
+                                logger.info("Copied template file: " + targetFile);
                             }
                         }
                     }
                 }
 
-                loadAndEnablePlugin(jarFilePath, mainClass, pluginName);
+                loadAndEnablePlugin(jarFilePath, mainClass, pluginName, logger);
             }
         } catch (Exception e) {
             log.error("Error loading plugin from jar: ", e);
         }
     }
 
-    private void loadAndEnablePlugin(String jarFilePath, String mainClass, String pluginName) {
+    private void loadAndEnablePlugin(String jarFilePath, String mainClass, String pluginName, Logger logger) {
         try {
             URL[] urls = { Paths.get(jarFilePath).toUri().toURL() };
             URLClassLoader classLoader = new URLClassLoader(urls, PluginLoader.class.getClassLoader());
@@ -104,15 +106,15 @@ public class PluginLoader {
             Class<?> clazz = Class.forName(mainClass, true, classLoader);
 
             if (!ShiinaPlugin.class.isAssignableFrom(clazz)) {
-                log.info("[" + pluginName + "] " + mainClass + " does not extend ShiinaPlugin");
+                logger.info(mainClass + " does not extend ShiinaPlugin");
                 return;
             }
 
             ShiinaPlugin pluginInstance = (ShiinaPlugin) clazz.getDeclaredConstructor().newInstance();
-            pluginInstance.onEnable(pluginName);
-            log.info("[" + pluginName + "] Loaded and enabled plugin");
+            pluginInstance.onEnable(pluginName, logger);
+            logger.info("Loaded and enabled plugin");
         } catch (Exception e) {
-            log.error("Error loading and enabling plugin: ", e);
+            logger.error("Error loading and enabling plugin: ", e);
         }
     }
 }

@@ -21,6 +21,11 @@
           <li class="nav-item">
             <a class="nav-link <#if actNav == 4>active</#if>" aria-current="page" href="/clans">Clans</a>
           </li>
+          <#list navbarItems as item>
+          <li class="nav-item">
+            <a class="nav-link <#if actNav == item.actNav>active</#if>" aria-current="page" href="/${item.url}">${item.name}</a>
+          </li>
+          </#list>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle <#if actNav == 5>active</#if>"  role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Docs

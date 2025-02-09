@@ -24,7 +24,7 @@ public class ModuleRegister {
 
     private static final List<ModulePath> modules = new ArrayList<>();
     private static final Map<String, List<ShiinaModule>> loadedModules = new HashMap<>();
-    private static final Logger log = (Logger) LoggerFactory.getLogger(ModuleRegister.class);
+    private static final Logger log = (Logger) LoggerFactory.getLogger("ModuleRegister");
 
     public static void registerDefaultModule(String forPage, ShiinaModule module) {
         ModulePath modulePath = new ModulePath(forPage, module, true);

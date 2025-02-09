@@ -4,6 +4,7 @@ import java.io.*;
 import dev.osunolimits.main.App;
 import dev.osunolimits.main.WebServer;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.plugins.NavbarRegister;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import spark.Request;
@@ -21,7 +22,7 @@ public class Shiina implements Route {
         res.header("Content-Encoding", "gzip");
         res.header("Content-Type", "text/html; charset=utf-8");
         if(shiina.mysql != null) shiina.mysql.close();
-
+        shiina.data.put("navbarItems", NavbarRegister.getItems());
         shiina.data.put("docs", ShiinaDocs.docs);
         try {
             Template templateFree = WebServer.freemarkerCfg.getTemplate(template);

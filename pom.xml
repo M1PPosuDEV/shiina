@@ -7,7 +7,7 @@
 
   <groupId>dev.osunolimits</groupId>
   <artifactId>shiina</artifactId>
-  <version>1.0</version>
+  <version>1.5</version>
 
   <name>shiina</name>
   <url>https://osunolimits.dev</url>
@@ -134,6 +134,33 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <noqualifier>all</noqualifier>
+          </configuration>
+          <executions>
+            <execution>
+              <id>aggregate</id>
+              <goals>
+                <goal>aggregate</goal>
+              </goals>
+              <configuration>
+                <reportOutputDirectory>${project.reporting.outputDirectory}</reportOutputDirectory>
+                <destDir>javadoc</destDir>
+              </configuration>
+            </execution>
+            <execution>
+              <id>attach-javadocs</id>
+              <phase>package</phase>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>

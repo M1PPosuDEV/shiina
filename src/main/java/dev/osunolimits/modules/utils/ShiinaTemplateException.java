@@ -11,7 +11,7 @@ import freemarker.template.TemplateExceptionHandler;
 
 public class ShiinaTemplateException implements TemplateExceptionHandler{
 
-     private final Logger LOG = (Logger) LoggerFactory.getLogger(ShiinaTemplateException.class);
+     private final Logger LOG = (Logger) LoggerFactory.getLogger("ShiinaTemplateException");
 
     @Override
     public void handleTemplateException(TemplateException te, Environment env, Writer out) throws TemplateException {

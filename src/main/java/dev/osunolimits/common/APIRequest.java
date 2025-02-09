@@ -7,7 +7,7 @@ import dev.osunolimits.main.App;
 import okhttp3.Request;
 
 public class APIRequest {
-    private static final Logger LOG = (Logger) LoggerFactory.getLogger(APIRequest.class);
+    private static final Logger LOG = (Logger) LoggerFactory.getLogger("APIRequest");
 
     public static Request build(String url) {
         if (Boolean.parseBoolean(App.loggerEnv.get("API_LOG")))

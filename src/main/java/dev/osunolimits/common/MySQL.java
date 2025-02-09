@@ -18,7 +18,7 @@ import lombok.Data;
 @Data
 public final class MySQL implements AutoCloseable{
 
-	private static Logger log = (Logger) LoggerFactory.getLogger(MySQL.class);
+	private static Logger log = (Logger) LoggerFactory.getLogger("MySQL");
 
 	public long connectionCreated;
 	public String caller;

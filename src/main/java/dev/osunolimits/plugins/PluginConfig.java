@@ -14,7 +14,7 @@ import java.nio.file.Files;
 
 public class PluginConfig {
 
-    private Logger log = (Logger) LoggerFactory.getLogger(PluginLoader.class);
+    private Logger log = (Logger) LoggerFactory.getLogger("PluginLoader");
 
     private String pluginName;
     private Class<?> configObject;

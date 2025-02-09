@@ -1,4 +1,4 @@
-<div class="col col-12 col-md-6 act-entry <#if (index >= 4)> d-none</#if> d-flex flex-column mb-4">
+<div class="col col-12 <#if !full??>col-md-6</#if> act-entry <#if (index >= 4)> d-none</#if> d-flex flex-column mb-4">
     <#if isActivity??>
     <div class="row p-2 align-items-center">
         <div class="col-auto">

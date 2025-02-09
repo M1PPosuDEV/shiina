@@ -20,7 +20,7 @@ public class UserInfoCache {
 
     private Gson gson;
     private MySQL mysql;
-    private Logger log = (Logger) LoggerFactory.getLogger(UserInfoCache.class);
+    private Logger log = (Logger) LoggerFactory.getLogger("RedisUserInfoCache");
 
     public UserInfoCache() {
         gson = new Gson();

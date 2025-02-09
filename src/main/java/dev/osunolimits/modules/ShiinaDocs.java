@@ -133,7 +133,7 @@ public class ShiinaDocs {
         new Thread(() -> {
             Parser parser = Parser.builder().build();
             try {
-                Logger log = (Logger) LoggerFactory.getLogger(ShiinaDocs.class);
+                Logger log = (Logger) LoggerFactory.getLogger("ShiinaDocs");
                 log.info("Watching dir docs/ for changes");
                 Path directoryPath = Paths.get("docs");
                 WatchService watchService = FileSystems.getDefault().newWatchService();

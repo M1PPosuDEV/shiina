@@ -12,8 +12,6 @@ homeDescription: "an unrestricted Sandbox, Cheating, and Testing Server where th
 homeBigLogoUrl: "/img/biglogo.webp"
 homeVideoUrl: "/video/onl.mp4"
 
-showAdditionalStats: false
-
 footerDescription: "We believe in granting you the freedom to explore to your heart's content. While we reserve the right to introduce minor restrictions in the future, for now, let your imagination run wild."
 footerCopyright: "© 2024 osuNoLimits.<br>Not affiliated with ppy.sh or osu!"
 footer:

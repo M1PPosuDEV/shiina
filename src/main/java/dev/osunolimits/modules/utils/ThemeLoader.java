@@ -15,7 +15,7 @@ import dev.osunolimits.models.Theme;
 
 public class ThemeLoader {
 
-    public static Logger logger = (Logger) LoggerFactory.getLogger(ThemeLoader.class);
+    public static Logger logger = (Logger) LoggerFactory.getLogger("ShiinaThemeLoader");
     public static ArrayList<Theme> themes = new ArrayList<Theme>();
     public static Theme currentTheme;
 

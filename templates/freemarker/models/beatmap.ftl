@@ -16,20 +16,26 @@
                 <div class="card-body d-flex flex-column justify-content-between h-100">
                     <div>
                         <div class="card-title-bm">
-                            <span class="fs-5">
+                            <span class="<#if !smallText??>fs-5</#if>">
                                 ${beatmap.filename?replace(".osu", "")}
                             </span>
                         </div>
                         <div class="card-artist">
+                            <#if !smallText??>
                             <span class="card-text fw-light">by ${beatmap.artist}
                             </span>
+                            <#else>
+                            <small class="text-muted">by ${beatmap.artist} - mapped by ${beatmap.creator}</small>
+                            </#if>
                         </div>
+                         <#if !smallText??>
                         <div class="card-creator">
                             <small class="card-text">mapped by ${beatmap.creator}
                             </small>
                         </div>
+                        </#if>
                         <div class="my-2">
-                            <span class="text-muted">
+                             <#if !smallText??><span class="text-muted"><#else><small class="text-muted"></#if>
                                 <i class="fa-solid fa-star"></i>
                                 ${beatmap.diff?string("0.00")}
                                 <i class="fa-solid fa-play"></i>
@@ -45,7 +51,8 @@
                                 <span class="badge bg-${convertStatusBackColor(beatmap.status)}">
                                     ${convertStatusBack(beatmap.status)}
                                 </span>
-                            </span>
+       
+                            <#if !smallText??></span><#else></small></#if>
                         </div>
                     </div>
                     <div class="hover-icons mt-2">

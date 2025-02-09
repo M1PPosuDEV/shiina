@@ -15,7 +15,7 @@ import spark.Spark;
 
 public class WebServer extends Spark {
 
-    private final Logger LOG = (Logger) LoggerFactory.getLogger(WebServer.class);
+    private final Logger LOG = (Logger) LoggerFactory.getLogger("WebServer");
 
     public static Configuration freemarkerCfg = new Configuration(Configuration.VERSION_2_3_23);
 

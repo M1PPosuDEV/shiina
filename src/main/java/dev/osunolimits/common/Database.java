@@ -13,7 +13,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import ch.qos.logback.classic.Logger;
 
 public class Database {
-    private static Logger log = (Logger) LoggerFactory.getLogger(Database.class);
+    private static Logger log = (Logger) LoggerFactory.getLogger("Database");
     public static List<MySQL> runningConnections = new ArrayList<MySQL>();
     private HikariConfig hikariConfig;
     public static HikariDataSource dataSource;

@@ -27,7 +27,7 @@ import redis.clients.jedis.JedisPooled;
 
 public class Init {
 
-    public final Logger log = (Logger) LoggerFactory.getLogger(Init.class);
+    public final Logger log = (Logger) LoggerFactory.getLogger("Igniter");
 
     public void initializeWebServer(WebServer webServer) {
         try {
