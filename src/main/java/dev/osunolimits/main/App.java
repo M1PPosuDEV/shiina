@@ -10,6 +10,7 @@ import com.stripe.Stripe;
 import ch.qos.logback.classic.Logger;
 import dev.osunolimits.models.Action;
 import dev.osunolimits.modules.ShiinaDocs;
+import dev.osunolimits.modules.ShiinaMultiDetection;
 import dev.osunolimits.modules.ShiinaRankCache;
 import dev.osunolimits.modules.utils.GroupRegistry;
 import dev.osunolimits.modules.utils.RobotJsonConfig;
@@ -216,6 +217,7 @@ public class App {
         ModuleRegister.reloadModuleConfigurations();
 
         new ShiinaRankCache();
+        new ShiinaMultiDetection();
 
         try {
             shiinaDocs.watchDirectory();

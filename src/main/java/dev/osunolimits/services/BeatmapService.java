@@ -8,7 +8,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.models.Beatmap;
 import dev.osunolimits.routes.ap.api.PubSubModels;
 
-public class BeatmapService implements AutoCloseable {
+public class BeatmapService {
 
     private final MySQL MYSQL;
     private final Gson GSON = new Gson();
@@ -43,7 +43,6 @@ public class BeatmapService implements AutoCloseable {
         }
     }
 
-    @Override
     public void close() {
         MYSQL.close();
     }

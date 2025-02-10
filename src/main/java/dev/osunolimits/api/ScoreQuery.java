@@ -42,7 +42,7 @@ public class ScoreQuery {
         private Beatmap beatmap;
     }
 
-    private final String SCORE_QUERY = "SELECT `scores`.`id` AS `score_id`, `score`, `pp`, `acc`, `scores`.`max_combo` AS `max_combo_scores`, `mods`, `n300`, `n100`, `n50`, `nmiss`, `ngeki`, `nkatu`, `grade`, `scores`.`status` AS `score_status`, `scores`.`mode` AS `score_mode`, `play_time`, `userid`, `users`.`name`, `users`.`country`, `perfect`, `maps`.`id` AS `bm_id`, `maps`.`set_id`, `maps`.`filename` AS `bm_title`, `maps`.`artist`, `maps`.`creator`, `maps`.`passes`, `maps`.`plays`, `maps`.`diff`, `maps`.`last_update`, `maps`.`status` AS `bm_status` FROM `scores` LEFT JOIN `maps` ON `map_md5` = `maps`.`md5` LEFT JOIN `users` ON `userid` = `users`.`id` WHERE `scores`.`id` = ?;";
+    private final String SCORE_QUERY = "SELECT `scores`.`id` AS `score_id`, `score`, `pp`, `acc`, `scores`.`max_combo` AS `max_combo_scores`, `mods`, `n300`, `n100`, `n50`, `nmiss`, `ngeki`, `nkatu`, `grade`, `scores`.`status` AS `score_status`, `scores`.`mode` AS `score_mode`, `play_time`, `userid`, `users`.`name`, `users`.`country`, `perfect`, `maps`.`id` AS `bm_id`, `maps`.`set_id`, `maps`.`filename` AS `bm_title`, `maps`.`artist`, `maps`.`creator`, `maps`.`passes`, `maps`.`plays`, `maps`.`diff`, `maps`.`last_update`, `maps`.`status` AS `bm_status` FROM `scores` INNER JOIN `maps` ON `map_md5` = `maps`.`md5` LEFT JOIN `users` ON `userid` = `users`.`id` WHERE `scores`.`id` = ?;";
 
     public Score getScore(int id) throws SQLException {
         ResultSet scoreRs = mysql.Query(SCORE_QUERY, id);

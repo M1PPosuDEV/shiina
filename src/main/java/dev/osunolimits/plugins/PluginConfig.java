@@ -14,7 +14,7 @@ import java.nio.file.Files;
 
 public class PluginConfig {
 
-    private Logger log = (Logger) LoggerFactory.getLogger("PluginLoader");
+    private Logger log;
 
     private String pluginName;
     private Class<?> configObject;
@@ -23,6 +23,7 @@ public class PluginConfig {
     public PluginConfig(String pluginName, Class<?> configObject) {
         this.pluginName = pluginName;
         this.configObject = configObject;
+        log = (Logger) LoggerFactory.getLogger("Config [" + pluginName + "]");
     }
 
     public Object getConfig() {

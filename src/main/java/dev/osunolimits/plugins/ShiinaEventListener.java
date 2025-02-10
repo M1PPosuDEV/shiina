@@ -3,6 +3,7 @@ package dev.osunolimits.plugins;
 import dev.osunolimits.plugins.events.actions.OnBeatmapFavoriteEvent;
 import dev.osunolimits.plugins.events.actions.OnRegisterEvent;
 import dev.osunolimits.plugins.events.admin.OnAddDonorEvent;
+import dev.osunolimits.plugins.events.admin.OnMultiAccountDetectionEvent;
 import dev.osunolimits.plugins.events.admin.OnRankBeatmapEvent;
 import dev.osunolimits.plugins.events.clans.OnUserDenyClanEvent;
 import dev.osunolimits.plugins.events.clans.OnUserGetKickedClanEvent;
@@ -16,6 +17,8 @@ public class ShiinaEventListener {
     public void onAddDonorEvent(OnAddDonorEvent event) { }
 
     public void onRankBeatmapEvent(OnRankBeatmapEvent event) { }
+
+    public void onMultiAccountDetectionEvent(OnMultiAccountDetectionEvent event) { }
 
     // ACTIONS
     public void onRegisterEvent(OnRegisterEvent event) { }

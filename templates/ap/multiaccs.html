@@ -27,7 +27,7 @@
 
     <!-- Multi-Account Table -->
     <div class="row">
-        <div class="col-12">
+        <div class="col-12 table-responsive">
             <#if multiAccountDetections?size == 0>
                 <div class="alert alert-info" role="alert">
                     No multi-account detections found.
@@ -36,47 +36,31 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col">User 1</th>
-                            <th scope="col">User 2</th>
-                            <th scope="col">User IDs</th>
-                            <th scope="col">Same Uninstall ID</th>
-                            <th scope="col">Same Disk Serial</th>
-                            <th scope="col">Same Adapters</th>
-                            <th scope="col">Latest Activity</th>
-                            <th scope="col">Profile</th>
+                            <th scope="col">Relation</th>
+                            <th scope="col">Level</th>
+                            <th scope="col">Date</th>
+            
                         </tr>
                     </thead>
                     <tbody>
                         <#list multiAccountDetections as detection>
                             <tr>
                                 <td>
-                                    <img src="${avatarServer}/${detection.user1?c}" alt="${detection.user1_name}'s Avatar" class="avatar">
-                                    ${detection.user1_name}
+                                 
+                                        <img src="${avatarServer}/${detection.user1?c}" class="img-fluid" width="20">
+                                        <a href="/ap/user?id=${detection.user1?c}">${detection.user1_name}</a> 
+                                        with account
+                                        <img src="${avatarServer}/${detection.user2?c}" class="img-fluid" width="20">
+                                        <a href="/ap/user?id=${detection.user2?c}">${detection.user2_name}</a> 
+                                      
+                                     
                                 </td>
                                 <td>
-                                    <img src="${avatarServer}/${detection.user2?c}" alt="${detection.user2_name}'s Avatar" class="avatar">
-                                    ${detection.user2_name}
-                                </td>
-                                <td>${detection.user1} & ${detection.user2}</td>
-                                <td>
-                                    <#if detection.same_uninstall_id>
-                                        <div class="match"></div>
-                                    </#if>
+                                    ${detection.level}
                                 </td>
                                 <td>
-                                    <#if detection.same_disk_serial>
-                                        <div class="match"></div>
-                                    </#if>
-                                </td>
-                                <td>
-                                    <#if detection.same_adapters>
-                                        <div class="match"></div>
-                                    </#if>
-                                </td>
-                                <td>${detection.latest_time}</td>
-                                <td>
-                                    <a href="/u/${detection.user1?c}" class="btn btn-sm btn-primary">Profile</a>
-                                    <a href="/u/${detection.user2?c}" class="btn btn-sm btn-primary">Profile</a>
+                                    ${detection.detection}   
+
                                 </td>
                             </tr>
                         </#list>
@@ -87,7 +71,7 @@
     </div>
 
 
-        <div class="row">
+        <div class="row position-fixed bottom-0 p-2 bg-body-tertiary align-items-center justify-content-center w-100">
             <div class="col-12 text-center">
                 <a href="?page=${page - 1}" class="btn btn-primary <#if page == 0>disabled</#if>">
                     <i class="fa-solid fa-chevron-left"></i>
@@ -101,3 +85,10 @@
 </div>
 </body>
 </html>
+<style>
+
+  table {
+    table-layout: fixed; /* Enforces fixed column widths */
+    width: 100%; /* Makes the table span the container width */
+  }
+</style>

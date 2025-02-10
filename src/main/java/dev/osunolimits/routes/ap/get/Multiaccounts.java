@@ -14,7 +14,7 @@ import spark.Response;
 
 public class Multiaccounts extends Shiina {
 
-    private final String MULTI_SQL = "WITH UserPairs AS (SELECT c1.userid AS user1, c2.userid AS user2, c1.uninstall_id, c1.disk_serial, c1.adapters, c1.latest_time FROM client_hashes c1 JOIN client_hashes c2 ON c1.uninstall_id = c2.uninstall_id AND c1.userid != c2.userid) SELECT up.user1, up.user2, u1.name AS user1_name, u2.name AS user2_name, CASE WHEN MAX(uninstall_id) = MIN(uninstall_id) THEN 1 ELSE 0 END AS same_uninstall_id, CASE WHEN MAX(disk_serial) = MIN(disk_serial) THEN 1 ELSE 0 END AS same_disk_serial, CASE WHEN MAX(adapters) = MIN(adapters) THEN 1 ELSE 0 END AS same_adapters, MAX(latest_time) AS latest_time FROM UserPairs up JOIN users u1 ON up.user1 = u1.id JOIN users u2 ON up.user2 = u2.id GROUP BY up.user1, up.user2, u1.name, u2.name HAVING NOT (same_uninstall_id = 0 AND same_disk_serial = 0 AND same_adapters = 0) ORDER BY latest_time DESC LIMIT ? OFFSET ?;";
+    private final String MULTI_SQL = "SELECT `user`, `u`.`name` AS `user_name`, `target`, `t`.`name` AS `target_name`, `d`.`detection`, `d`.`score` FROM `sh_detections` AS `d` INNER JOIN `users` AS `u` ON `u`.`id` = `d`.`user` INNER JOIN `users` AS `t` ON `t`.`id` = `d`.`target` ORDER BY `d`.`detection` DESC LIMIT ? OFFSET ?;";
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -42,14 +42,12 @@ public class Multiaccounts extends Shiina {
         boolean hasNextPage = false;
         while (statsResultSet.next()) {
             MultiAccountDetection multiAccountDetection = new MultiAccountDetection();
-            multiAccountDetection.setUser1(statsResultSet.getInt("user1"));
-            multiAccountDetection.setUser2(statsResultSet.getInt("user2"));
-            multiAccountDetection.setUser1_name(statsResultSet.getString("user1_name"));
-            multiAccountDetection.setUser2_name(statsResultSet.getString("user2_name"));
-            multiAccountDetection.setSame_uninstall_id(statsResultSet.getBoolean("same_uninstall_id"));
-            multiAccountDetection.setSame_disk_serial(statsResultSet.getBoolean("same_disk_serial"));
-            multiAccountDetection.setSame_adapters(statsResultSet.getBoolean("same_adapters"));
-            multiAccountDetection.setLatest_time(statsResultSet.getString("latest_time"));
+            multiAccountDetection.setUser1(statsResultSet.getInt("user"));
+            multiAccountDetection.setUser2(statsResultSet.getInt("target"));
+            multiAccountDetection.setUser1_name(statsResultSet.getString("user_name"));
+            multiAccountDetection.setUser2_name(statsResultSet.getString("target_name"));
+            multiAccountDetection.setLevel(statsResultSet.getInt("score"));
+            multiAccountDetection.setDetection(statsResultSet.getString("detection"));
 
             if(multiAccountDetections.size() == 10) {
                 hasNextPage = true;
@@ -70,10 +68,8 @@ public class Multiaccounts extends Shiina {
         private int user2;
         private String user1_name;
         private String user2_name;
-        private boolean same_uninstall_id;
-        private boolean same_disk_serial;
-        private boolean same_adapters;
-        private String latest_time;
+        private int level;
+        private String detection;
     }
     
 }

@@ -12,7 +12,7 @@
 
 <div class="container-fluid">
   
-  <div class="row">
+  <div class="row" style="margin-bottom: 45px;">
     <div class="col-5">
       <div class="card-header d-flex align-items-center">
         <img
@@ -61,6 +61,28 @@
 
             <#else>
             Account is in good standing
+            </#list>
+        </ul>
+        </div>
+      </div>
+      <div class="card shadow-sm mt-3">
+        <div class="card-body">
+          <h6 class="text-uppercase">Multi Accounts (${detections?size})</h6>
+
+          <ul class="list-group ">
+          <#list detections as detection>
+
+            <li class="list-group-item"> 
+              <img src="${avatarServer}/${detection.user1?c}" class="img-fluid" width="20">
+              <a href="/ap/user?id=${detection.user1?c}">${detection.user1_name}</a> 
+              with account
+              <img src="${avatarServer}/${detection.user2?c}" class="img-fluid" width="20">
+              <a href="/ap/user?id=${detection.user2?c}">${detection.user2_name}</a> 
+              Level (${detection.level})
+            </li>
+
+            <#else>
+            No Multiaccounts found
             </#list>
         </ul>
         </div>
@@ -145,7 +167,7 @@
   
 </div>
 
-<div class="position-fixed bottom-0 mb-3 ">
+<div class="position-fixed bottom-0 p-2 bg-body-tertiary w-100">
   <a target="_blank" href="/u/${id}" class="btn btn-primary">
     <i class="fa-solid fa-chevron-left"></i> Go to profile
   </a>

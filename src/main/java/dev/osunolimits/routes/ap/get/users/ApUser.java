@@ -16,12 +16,25 @@ import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.OsuConverter;
 import dev.osunolimits.utils.osu.PermissionHelper;
+import lombok.Data;
 import spark.Request;
 import spark.Response;
 
 public class ApUser extends Shiina {
 
     private Gson gson;
+
+    @Data
+    public class MultiDetection {
+        private int user1;
+        private int user2;
+        private String user1_name;
+        private String user2_name;
+        private int level;
+        private String detection;
+    }
+
+    private final String DETECTION_SQL = "SELECT `user`, `u`.`name` AS `user_name`, `target`, `t`.`name` AS `target_name`, `d`.`detection`, `d`.`score` FROM `sh_detections` AS `d` INNER JOIN `users` AS `u` ON `u`.`id` = `d`.`user` INNER JOIN `users` AS `t` ON `t`.`id` = `d`.`target` WHERE `d`.`user` = ?;";
 
     public ApUser() {
         gson = new Gson();
@@ -69,6 +82,21 @@ public class ApUser extends Shiina {
 
         }
         shiina.data.put("standings", standing);
+
+        ResultSet detectionsResultSet = shiina.mysql.Query(DETECTION_SQL, userId);
+        List<MultiDetection> detections = new ArrayList<>();
+        while (detectionsResultSet.next()) {
+            MultiDetection detection = new MultiDetection();
+            detection.setUser1(detectionsResultSet.getInt("user"));
+            detection.setUser2(detectionsResultSet.getInt("target"));
+            detection.setUser1_name(detectionsResultSet.getString("user_name"));
+            detection.setUser2_name(detectionsResultSet.getString("target_name"));
+            detection.setDetection(detectionsResultSet.getString("detection"));
+            detection.setLevel(detectionsResultSet.getInt("score"));
+            detections.add(detection);
+        }
+        shiina.data.put("detections", detections);
+
         UserInfoObject userInfo = gson.fromJson(App.jedisPool.get("shiina:user:" + userId), UserInfoObject.class);
         if(userInfo == null) {
             return redirect(res, shiina, "/ap/users");
