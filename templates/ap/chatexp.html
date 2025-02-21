@@ -1,0 +1,111 @@
+<#include "/ap/assets/base.html">
+
+<div class="container-fluid my-3">
+  <div class="row align-items-center mb-3">
+    <div class="col-auto">
+      <h5 class="mb-0">
+        <i class="fa-solid fa-comment"></i> Chat Explorer
+      </h5>
+    </div>
+    <div class="col">
+      <form action="" method="GET" class="d-flex">
+        <input 
+          type="text" 
+          name="search" 
+          class="form-control" 
+          placeholder="Search for users or messages..." 
+          value="${search!''}" 
+          aria-label="Search">
+        <button type="submit" class="btn btn-primary ms-2">
+          <i class="fa-solid fa-search"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Message</th>
+        </tr>
+      </thead>
+      <tbody>
+        <#list chats as chat>
+         <tr>
+          
+          <td data-timestamp-format="unix" data-timestamp="${chat.time?c}">${chat.time?c}</td>
+          <td>
+            <img src="${avatarServer}/${chat.from_id?c}" class="img-fluid" width="20">
+            <a href="/ap/user?id=${chat.from_id?c}">${chat.from_name}</a> 
+            wrote "${chat.msg}" to
+            <img src="${avatarServer}/${chat.to_id?c}" class="img-fluid" width="20">
+            <a href="/ap/user?id=${chat.to_id?c}">${chat.to_name}</a> 
+          </td>
+         </tr>
+        </#list>
+      </tbody>
+    </table>
+  </div>
+
+  
+</div>
+
+
+<div class="row position-fixed bottom-0 ms-0 p-2 bg-body-tertiary align-items-center justify-content-center w-100">
+  <div class="col-12 text-center">
+      <a href="?page=${page - 1}<#if search??>&search=${search}</#if>" class="btn btn-primary <#if page == 0>disabled</#if>">
+          <i class="fa-solid fa-chevron-left"></i>
+      </a>
+      <a href="?page=${page + 1}<#if search??>&search=${search}</#if>" class="btn btn-primary <#if !hasNextPage>disabled</#if>">
+          <i class="fa-solid fa-chevron-right"></i>
+      </a>
+  </div>
+</div>
+
+<style>
+  .table-responsive {
+    height: 85vh;
+  }
+
+  .priv-cell {
+    word-wrap: break-word; /* Allows text to wrap */
+    word-break: break-word; /* Ensures long words wrap */
+    white-space: normal; /* Forces wrapping behavior */
+    vertical-align: middle; /* Centers text vertically */
+  }
+
+  table {
+    table-layout: fixed; /* Enforces fixed column widths */
+    width: 100%; /* Makes the table span the container width */
+  }
+
+  table th, table td {
+    vertical-align: middle; /* Ensures vertical alignment for all cells */
+    text-align: center; /* Centers content horizontally */
+    overflow: hidden; /* Hides overflow for long content */
+    text-overflow: ellipsis; /* Adds ellipsis for clipped content */
+  }
+
+  table th:nth-child(1), table td:nth-child(1) {
+    width: 10%; /* Fixed width for Avatar column */
+  }
+
+  table th:nth-child(2), table td:nth-child(2) {
+    width: 30%; /* Fixed width for Name column */
+  }
+
+  table th:nth-child(3), table td:nth-child(3) {
+    width: 30%; /* Fixed width for Privileges column */
+  }
+
+  table th:nth-child(4), table td:nth-child(4) {
+    width: 30%; /* Fixed width for Groups column */
+  }
+</style>
+
+</body>
+</html>

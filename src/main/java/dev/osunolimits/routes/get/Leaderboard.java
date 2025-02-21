@@ -54,11 +54,20 @@ public class Leaderboard extends Shiina {
             sort = req.queryParams("sort");
         }
 
-        LeaderboardResponse leaderboardResponse = leaderboardQuery.getLeaderboard(sort, mode, pageSize, offset, country);
+        boolean hasNextPage = false;
+
+        LeaderboardResponse leaderboardResponse = leaderboardQuery.getLeaderboard(sort, mode, pageSize + 1, offset, country);
+        if(leaderboardResponse.getLeaderboard().length > pageSize) {
+            hasNextPage = true;
+            LeaderboardQuery.LeaderboardItem[] trimmedLeaderboard = new LeaderboardQuery.LeaderboardItem[pageSize];
+            System.arraycopy(leaderboardResponse.getLeaderboard(), 0, trimmedLeaderboard, 0, pageSize);
+            leaderboardResponse.setLeaderboard(trimmedLeaderboard);
+        }
 
         shiina.data.put("countries", CountryLeaderboardCache.getOrPut(mode, shiina.mysql));
         shiina.data.put("leaderboard", leaderboardResponse.getLeaderboard());
 
+        shiina.data.put("hasNextPage", hasNextPage);
         shiina.data.put("seo", new SEOBuilder("Leaderboard | " + OsuConverter.convertModeBack(String.valueOf(mode)) + " | " + OsuConverter.SortHelper.convertSortBack(sort), App.customization.get("homeDescription").toString()));
         shiina.data.put("sort", sort);
         shiina.data.put("mode", mode);

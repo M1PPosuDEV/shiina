@@ -22,6 +22,7 @@ import dev.osunolimits.plugins.PluginLoader;
 import dev.osunolimits.routes.ap.api.PubSubHandler;
 import dev.osunolimits.routes.ap.api.RecoverAccount;
 import dev.osunolimits.routes.ap.get.Bancho;
+import dev.osunolimits.routes.ap.get.ChatExplorer;
 import dev.osunolimits.routes.ap.get.Commands;
 import dev.osunolimits.routes.ap.get.Multiaccounts;
 import dev.osunolimits.routes.ap.get.Start;
@@ -178,6 +179,7 @@ public class App {
         WebServer.get("/ap/api/handler", new PubSubHandler());
 
         WebServer.get("/ap/multiaccs", new Multiaccounts());
+        WebServer.get("/ap/chat", new ChatExplorer());
         WebServer.get("/ap/start", new Start());
         WebServer.get("/ap/commands", new Commands());
         WebServer.get("/ap/themes", new Themes());
@@ -218,12 +220,6 @@ public class App {
 
         new ShiinaRankCache();
         new ShiinaMultiDetection();
-
-        try {
-            shiinaDocs.watchDirectory();
-        } catch (Exception e) {
-            log.error("Error while running docs", e);
-        }
 
     }
 

@@ -2,26 +2,19 @@ package dev.osunolimits.modules;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.main.WebServer;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.SEOBuilder;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -107,6 +100,10 @@ public class ShiinaDocs {
                 String route = req.params(":route");
                 for (DocsModel model : docs) {
                     if (model.route.equals(route)) {
+                        if (model.behindLogin.equals("true") && !shiina.loggedIn) {
+                            return redirect(res, shiina, "/login?path=" + req.pathInfo());
+                        }
+
                         shiina.data.put("actNav", 5);
                         shiina.data.put("title", model.title);
                         shiina.data.put("icon", model.icon);
@@ -116,9 +113,10 @@ public class ShiinaDocs {
                         shiina.data.put("footer", model.footer);
                         shiina.data.put("behindLogin", model.behindLogin);
 
-                        if (model.behindLogin.equals("true") && !shiina.loggedIn) {
-                            return redirect(res, shiina, "/login?path=" + req.pathInfo());
-                        }
+                        shiina.data.put("seo",
+                                new SEOBuilder(
+                                        model.title + " | Docs",
+                                        App.customization.get("homeDescription").toString()));
 
                         return renderTemplate("docs.html", shiina, res, req);
                     }
@@ -126,105 +124,6 @@ public class ShiinaDocs {
                 return notFound(res, shiina);
             }
         };
-    }
-
-    public void watchDirectory() throws Exception {
-
-        new Thread(() -> {
-            Parser parser = Parser.builder().build();
-            try {
-                Logger log = (Logger) LoggerFactory.getLogger("ShiinaDocs");
-                log.info("Watching dir docs/ for changes");
-                Path directoryPath = Paths.get("docs");
-                WatchService watchService = FileSystems.getDefault().newWatchService();
-
-                directoryPath.register(watchService,
-                        StandardWatchEventKinds.ENTRY_CREATE,
-                        StandardWatchEventKinds.ENTRY_DELETE,
-                        StandardWatchEventKinds.ENTRY_MODIFY);
-
-                while (true) {
-                    WatchKey key = watchService.take();
-                    System.out.println();
-                    for (WatchEvent<?> event : key.pollEvents()) {
-                        if (!event.context().toString().endsWith(".md")) {
-                            continue;
-                        }
-                        DocsModel model = null;
-                        String sb = "";
-                        if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE
-                                || event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-                            sb = readDocsFile(event.context().toString());
-                            model = ShiinaDocs.extractComments(sb);
-                            if (model == null) {
-                                log.warn("File docs/" + event.context() + " does not contain comments");
-                                continue;
-                            }
-                            model.filename = event.context().toString();
-
-                        }
-                        log.info(event.kind().name() + " | docs/" + event.context());
-                        try {
-                            // Handle the specific event
-                            if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
-                                boolean exists = false;
-                                for (DocsModel doc : docs) {
-                                    if (doc.route.equals(model.route)) {
-                                        exists = true;
-                                        log.warn("Route " + model.route + " already exists");
-                                        continue;
-                                    }
-                                }
-                                if (!exists)
-                                    docs.add(model);
-                            } else if (event.kind() == StandardWatchEventKinds.ENTRY_DELETE) {
-                                for (DocsModel doc : docs) {
-                                    if (doc.filename.equals(event.context())) {
-                                        docs.remove(doc);
-                                        log.warn("Removed " + model.route + "");
-                                        continue;
-                                    }
-                                }
-
-                            } else if (event.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
-
-                                for (DocsModel doc : docs) {
-                                    if (doc.filename.equals(model.filename)) {
-                                        readDocsFile(event.context().toString());
-                                        doc.icon = model.icon;
-                                        doc.krz = model.krz;
-                                        doc.title = model.title;
-                                        doc.navbar = model.navbar;
-                                        doc.footer = model.footer;
-                                        doc.behindLogin = model.behindLogin;
-                                        doc.filename = event.context().toString();
-                                        
-                                        Node document = parser.parse(sb);
-                                        HtmlRenderer renderer = HtmlRenderer.builder().build();
-                                        doc.content = renderer.render(document);
-                                        doc.route = model.route;
-
-                                        continue;
-                                    }
-                                }
-                            }
-                        } catch (Exception e) {
-                            // TODO: handle exception
-                        }
-
-                    }
-
-                    // To receive further events, reset the key
-                    key.reset();
-                }
-            } catch (IOException e) {
-                App.log.error("Failed to watch directory");
-            } catch (InterruptedException e) {
-                App.log.error("Interuppted while watching directory");
-            }
-        }).run();
-        ;
-
     }
 
 }

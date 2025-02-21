@@ -4,18 +4,21 @@
     <#list connections as con>
         <div class="card mb-3 shadow-sm">
             <div class="card-header bg-secondary text-white">
-                <h2 class="mb-0">Bugged connection at (${con.caller})</h2>
+                <h2 class="mb-0">Bugged connection at <#if con.caller??>${con.caller}<#else>Unknown</#if></h2>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Created:</strong> <span data-timestamp-format="unix" data-timestamp="${con.connectionCreated?c}">Created: ${con.connectionCreated?c}</span></p>
+                        <p><strong>Created:</strong> 
+                            <#if con.connectionCreated??>
+                                <span data-timestamp-format="unix" data-timestamp="${con.connectionCreated?c}">${con.connectionCreated?c}</span>
+                            <#else>
+                                Unknown
+                            </#if>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </#list>
 </div>
-
-</body>
-</html>
