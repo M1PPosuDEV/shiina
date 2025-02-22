@@ -163,12 +163,12 @@ public class OsuConverter {
     }
 
     public static String convertMode(String mode) {
-        switch (mode.toLowerCase()) {
+        switch (mode.toUpperCase()) {
             case "OSU":
                 return "0";
             case "OSURX":
                 return "4";
-            case "osuap":
+            case "OSUAP":
                 return "8";
             case "TAIKO":
                 return "1";

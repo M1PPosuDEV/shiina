@@ -28,6 +28,7 @@ public class ShiinaMultiDetection {
         
         this.scheduler = Executors.newSingleThreadScheduledExecutor(threadFactory);
         startScheduledTask();
+        runHourlyTask();
     }
     
     private void startScheduledTask() {
@@ -52,7 +53,7 @@ public class ShiinaMultiDetection {
                 if(sameAdapters) level++;
 
                 int affectedRows = mysql.Exec("INSERT INTO `sh_detections`(`user`, `target`, `detection`, `score`) VALUES (?,?,CURRENT_TIMESTAMP(),?)", user1, user2, level);
-                if(affectedRows != 0) {
+                if(affectedRows != -1) {
                     new OnMultiAccountDetectionEvent(user1, user2, level).callListeners();
                 }
             }

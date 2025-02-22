@@ -75,6 +75,7 @@ import dev.osunolimits.routes.post.HandleDonate;
 import dev.osunolimits.routes.post.HandleFlagChange;
 import dev.osunolimits.routes.post.HandleLogin;
 import dev.osunolimits.routes.post.HandleLogout;
+import dev.osunolimits.routes.post.HandleModeChange;
 import dev.osunolimits.routes.post.HandleNameChange;
 import dev.osunolimits.routes.post.HandleRecovery;
 import dev.osunolimits.routes.post.HandleRegister;
@@ -150,6 +151,7 @@ public class App {
         WebServer.post("/settings/avatar", new HandleAvatarChange());
         WebServer.post("/settings/country", new HandleFlagChange());
         WebServer.post("/settings/name", new HandleNameChange());
+        WebServer.post("/settings/mode", new HandleModeChange());
         WebServer.post("/settings/userpage", new HandleUserpageChange());
 
         WebServer.get("/login", new Login());

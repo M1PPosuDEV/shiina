@@ -10,6 +10,7 @@ import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
+import dev.osunolimits.utils.osu.OsuConverter;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -45,15 +46,31 @@ public class Settings extends Shiina {
             countries.add(country);
         }
 
-        ResultSet countryRS = shiina.mysql.Query("SELECT `country`, `raw` FROM `users` LEFT JOIN `userpages` ON `users`.`id` = `userpages`.`user_id` WHERE `users`.`id` = ?;", shiina.user.id);
+        ResultSet countryRS = shiina.mysql.Query("SELECT `country`, `raw`, `preferred_mode` FROM `users` LEFT JOIN `userpages` ON `users`.`id` = `userpages`.`user_id` WHERE `users`.`id` = ?;", shiina.user.id);
         if(countryRS.next()) {
             shiina.data.put("curCountry", countryRS.getString("country"));
             shiina.data.put("curUserpage", countryRS.getString("raw"));
+            shiina.data.put("curMode", countryRS.getInt("preferred_mode"));
         }
-        
+
+        ArrayList<DataMode> modes = new ArrayList<>();
+        for (String mode : OsuConverter.modeArray) {
+            DataMode dataMode = new DataMode();
+            dataMode.setName(mode);
+            dataMode.setId(Integer.parseInt(OsuConverter.convertMode(mode)));
+            modes.add(dataMode);
+        }
+
+        shiina.data.put("modes", modes);    
         shiina.data.put("countries", countries);
         shiina.data.put("seo", new SEOBuilder("Settings", App.customization.get("homeDescription").toString()));
         return renderTemplate("user/settings.html", shiina, res, req);
+    }
+
+    @Data
+    public class DataMode {
+        private String name;
+        private int id;
     }
     
 

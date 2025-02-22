@@ -47,7 +47,7 @@ public class User extends Shiina {
             id = Integer.parseInt(req.params("id"));
         }
 
-        int mode = 0;
+        Integer mode = null;
         if (OsuConverter.checkForValidMode(req.queryParams("mode"))) {
             mode = Integer.parseInt(req.queryParams("mode"));
         }
@@ -59,6 +59,9 @@ public class User extends Shiina {
         FullUser user = new UserQuery().getUser(id);
         if (user == null) {
             return notFound(res, shiina);
+        }
+        if(mode == null) {
+            return redirect(res, shiina, "/u/" + id + "?mode=" + user.getPlayer().getInfo().getPreferred_mode());
         }
         
         Player player = user.getPlayer();

@@ -7,8 +7,12 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -29,9 +33,22 @@ public class PluginLoader {
                 return;
             }
 
+            Map<String, PluginMetadata> pluginMetadataMap = new HashMap<>();
+            Set<String> loadedPlugins = new HashSet<>();
+
             try (DirectoryStream<Path> jarFiles = Files.newDirectoryStream(pluginsPath, "*.jar")) {
                 for (Path jarPath : jarFiles) {
-                    loadPluginFromJar(jarPath.toString());
+                    PluginMetadata metadata = parsePluginMetadata(jarPath.toString());
+                    if (metadata != null) {
+                        pluginMetadataMap.put(metadata.name, metadata);
+                    }
+                }
+            }
+
+            List<PluginMetadata> sortedPlugins = sortPluginsByDependency(pluginMetadataMap);
+            for (PluginMetadata metadata : sortedPlugins) {
+                if (!loadedPlugins.contains(metadata.name)) {
+                    loadPluginFromMetadata(metadata, loadedPlugins);
                 }
             }
         } catch (Exception e) {
@@ -39,62 +56,91 @@ public class PluginLoader {
         }
     }
 
-    private void loadPluginFromJar(String jarFilePath) {
+    private PluginMetadata parsePluginMetadata(String jarFilePath) {
         try (JarFile jarFile = new JarFile(jarFilePath)) {
             JarEntry pluginYmlEntry = jarFile.getJarEntry("plugin.yml");
             if (pluginYmlEntry == null) {
                 log.error("No plugin.yml in " + jarFilePath);
-                return;
+                return null;
             }
 
-            // Read plugin.yml
             try (InputStream inputStream = jarFile.getInputStream(pluginYmlEntry)) {
                 java.util.Properties properties = new java.util.Properties();
                 properties.load(inputStream);
+
                 String mainClass = properties.getProperty("main");
                 String pluginName = properties.getProperty("name");
+                String dependsOn = properties.getProperty("depends-on");
 
-                if (mainClass == null) {
-                    log.error("plugin.yml does not specify a main class in " + jarFilePath);
-                    return;
+                if (mainClass == null || pluginName == null) {
+                    log.error("plugin.yml missing required fields in " + jarFilePath);
+                    return null;
                 }
 
-                if (pluginName == null) {
-                    log.error("plugin.yml does not specify a name in " + jarFilePath);
-                    return;
-                }
-
-                Logger logger = (Logger) LoggerFactory.getLogger("Plugin [" + pluginName + "]");
-
-                Enumeration<JarEntry> entries = jarFile.entries();
-                while (entries.hasMoreElements()) {
-                    JarEntry entry = entries.nextElement();
-                    String entryName = entry.getName();
-
-                    if (entryName.startsWith("modules/") &&
-                            (entryName.endsWith(".html") || entryName.endsWith(".ftl"))) {
-
-                        String[] pathParts = entryName.split("/");
-                        if (pathParts.length >= 3) { // modules/subfolder/file
-                            String subfolder = pathParts[1];
-                            String fileName = pathParts[pathParts.length - 1];
-
-                            Path targetDir = Path.of("templates/modules/plugins", subfolder);
-                            Files.createDirectories(targetDir);
-
-                            Path targetFile = targetDir.resolve(fileName);
-                            try (InputStream fileInputStream = jarFile.getInputStream(entry)) {
-                                Files.copy(fileInputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
-                                logger.info("Copied template file: " + targetFile);
-                            }
-                        }
-                    }
-                }
-
-                loadAndEnablePlugin(jarFilePath, mainClass, pluginName, logger);
+                List<String> dependencies = (dependsOn != null) ? List.of(dependsOn.split(",")) : List.of();
+                return new PluginMetadata(pluginName.trim(), mainClass.trim(), dependencies, jarFilePath);
             }
         } catch (Exception e) {
-            log.error("Error loading plugin from jar: ", e);
+            log.error("Error reading plugin metadata from " + jarFilePath, e);
+            return null;
+        }
+    }
+
+    private List<PluginMetadata> sortPluginsByDependency(Map<String, PluginMetadata> plugins) {
+        List<PluginMetadata> sorted = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
+        Set<String> stack = new HashSet<>();
+
+        for (PluginMetadata plugin : plugins.values()) {
+            if (!visited.contains(plugin.name)) {
+                if (!topologicalSort(plugin, plugins, visited, stack, sorted)) {
+                    log.error("Circular dependency detected involving " + plugin.name);
+                    return List.of(); // Prevents loading in case of a cycle
+                }
+            }
+        }
+
+        return sorted;
+    }
+
+    private boolean topologicalSort(PluginMetadata plugin, Map<String, PluginMetadata> plugins,
+            Set<String> visited, Set<String> stack, List<PluginMetadata> sorted) {
+        if (stack.contains(plugin.name))
+            return false; // Cycle detected
+        if (visited.contains(plugin.name))
+            return true;
+
+        stack.add(plugin.name);
+        for (String dep : plugin.dependencies) {
+            PluginMetadata depPlugin = plugins.get(dep.trim());
+            if (depPlugin != null && !topologicalSort(depPlugin, plugins, visited, stack, sorted)) {
+                return false;
+            }
+        }
+
+        stack.remove(plugin.name);
+        visited.add(plugin.name);
+        sorted.add(plugin);
+        return true;
+    }
+
+    private void loadPluginFromMetadata(PluginMetadata metadata, Set<String> loadedPlugins) {
+        Logger logger = (Logger) LoggerFactory.getLogger("Plugin [" + metadata.name + "]");
+        loadAndEnablePlugin(metadata.jarFilePath, metadata.mainClass, metadata.name, logger);
+        loadedPlugins.add(metadata.name);
+    }
+
+    private static class PluginMetadata {
+        String name;
+        String mainClass;
+        List<String> dependencies;
+        String jarFilePath;
+
+        PluginMetadata(String name, String mainClass, List<String> dependencies, String jarFilePath) {
+            this.name = name;
+            this.mainClass = mainClass;
+            this.dependencies = dependencies;
+            this.jarFilePath = jarFilePath;
         }
     }
 
@@ -117,4 +163,5 @@ public class PluginLoader {
             logger.error("Error loading and enabling plugin: ", e);
         }
     }
+
 }
