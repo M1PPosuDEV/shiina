@@ -8,6 +8,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.plugins.events.actions.OnUserFlagChangeEvent;
 import dev.osunolimits.routes.ap.api.PubSubModels;
 import dev.osunolimits.routes.ap.api.PubSubModels.CountryChangeInput;
 import dev.osunolimits.utils.osu.PermissionHelper;
@@ -57,6 +58,8 @@ public class HandleFlagChange extends Shiina {
         input.id = userId;
         input.country = flag.toLowerCase();
         App.jedisPool.publish("country_change", GSON.toJson(input));
+
+        new OnUserFlagChangeEvent(userId, flag).callListeners();
 
         return redirect(res, shiina, "/settings?info=Flag was changed, it may take a few minutes to update fully");
     }

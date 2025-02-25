@@ -6,15 +6,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import dev.osunolimits.main.App;
+import dev.osunolimits.monetization.models.KofiConfigModel;
 import dev.osunolimits.monetization.models.MonetizationConfigModel;
-import dev.osunolimits.monetization.models.StripeConfigModel;
 
 public class MonetizationConfig {
 
     public final boolean ENABLED;
-    private StripeConfigModel stripeConfigModel;
+    public static KofiConfigModel KOFI_CONFIG;
 
     public MonetizationConfig() {
         File monetizationFile = new File("data/monetization.json");
@@ -32,29 +33,42 @@ public class MonetizationConfig {
         if (ENABLED) {
             boolean exEnabled = App.env.get("EXPUBSUBS").equals("true");
             if (!exEnabled) {
-                App.log.error("Monetization is enabled but EXPUBSUBS is not. Please enable EXPUBSUBS in your .env file.");
+                App.log.error(
+                        "Monetization is enabled but EXPUBSUBS is not. Please enable EXPUBSUBS in your .env file.");
                 System.exit(0);
             }
 
-            File stripeConfigFile = new File("data/monetization/stripe.json");
-
-            // Ensure the directory exists
             createDirectoryIfNotExists("data/monetization");
+            File kofiConfig = new File("data/monetization/kofi.json");
+            if (!kofiConfig.exists()) {
 
-            if (!stripeConfigFile.exists()) {
-                createDefaultStripeConfig(stripeConfigFile);
+                try {
+                    kofiConfig.createNewFile();
+                    KofiConfigModel model = new KofiConfigModel();
+                    KOFI_CONFIG = model;
+                    String fileContent = new Gson().toJson(model);
+                    try (FileWriter writer = new FileWriter(kofiConfig)) {
+                        writer.write(fileContent);
+                        App.log.info("Created default Kofi configuration at {}", kofiConfig.getPath());
+                    } catch (IOException e) {
+                        App.log.error("Failed to create default Kofi configuration", e);
+                    }
+                } catch (IOException e) {
+                    App.log.error("Failed to create Kofi configuration file", e);
+                }
             } else {
-                stripeConfigModel = loadStripeConfig(stripeConfigFile);
-                validateStripeConfig(stripeConfigFile);
+                try {
+                    KOFI_CONFIG = new Gson().fromJson(Files.readString(kofiConfig.toPath()), KofiConfigModel.class);
+                } catch (JsonSyntaxException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
 
     // Method to return the StripeConfigModel
-    public StripeConfigModel getStripeConfig() {
-        return stripeConfigModel;
-    }
-
     private void createDirectoryIfNotExists(String path) {
         File dir = new File(path);
         if (!dir.exists()) {
@@ -90,42 +104,4 @@ public class MonetizationConfig {
         }
     }
 
-    private void createDefaultStripeConfig(File stripeConfigFile) {
-        StripeConfigModel stripeModel = new StripeConfigModel();
-        String fileContent = new Gson().toJson(stripeModel);
-
-        try (FileWriter writer = new FileWriter(stripeConfigFile)) {
-            writer.write(fileContent);
-            App.log.info("Created default Stripe configuration at {}", stripeConfigFile.getPath());
-        } catch (IOException e) {
-            App.log.error("Failed to create default Stripe configuration", e);
-        }
-    }
-
-    private StripeConfigModel loadStripeConfig(File stripeConfigFile) {
-        try {
-            String fileContent = Files.readString(stripeConfigFile.toPath());
-            return new Gson().fromJson(fileContent, StripeConfigModel.class);
-        } catch (IOException e) {
-            App.log.error("Failed to read Stripe configuration", e);
-            return null;  // Return null in case of an error
-        }
-    }
-
-    private void validateStripeConfig(File stripeConfigFile) {
-        if (stripeConfigModel == null) {
-            App.log.error("Stripe configuration is invalid or missing.");
-            System.exit(0);
-        }
-
-        if (stripeConfigModel.getClientPublic().isEmpty() || 
-            stripeConfigModel.getClientSecret().isEmpty() || 
-            stripeConfigModel.getWebhookSecret().isEmpty()) {
-
-            App.log.error("Stripe configuration is incomplete. Please fill in the required fields in {}", stripeConfigFile.getPath());
-            System.exit(0);
-        } else {
-            App.log.info("Stripe configuration loaded successfully.");
-        }
-    }
 }

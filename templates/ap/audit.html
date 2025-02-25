@@ -1,0 +1,60 @@
+<#include "assets/base.html">
+<div class="container-fluid my-3">
+
+    <!-- Page Header -->
+    <div class="row align-items-center mb-3">
+        <div class="col-auto">
+            <h5 class="mb-0">
+                <i class="fa-solid fa-list"></i> Audit Log
+            </h5>
+        </div>
+    </div>
+
+    <ul class="list-group ">
+    <#list auditLog as log>
+    <li class="list-group-item"> <img src="${avatarServer}/${log.userId}" class="img-fluid" width="20"> <a href="/ap/user?id=${log.userId}">${log.userName}</a> 
+    <#if log.action == "RESTRICT">
+    restricted
+    <#elseif log.action == "UNRESTRICT">
+    unrestricted
+    <#elseif log.action == "WIPE">
+    wiped
+    <#elseif log.action == "GIVEDONATOR">
+    gave donator to
+    <#elseif log.action == "RMPB">
+    removed profile picture of
+    </#if>
+    <img src="${avatarServer}/${log.targetId}" class="img-fluid" width="20">
+    <a href="/ap/user?id=${log.targetId}">${log.targetName}</a> 
+    for
+    "${log.reason}"
+    <#if log.action == "WIPE">
+    on mode (${convertModeBack(log.mode)?upper_case})
+    </#if>
+    </li>
+    </#list>
+
+    </ul>
+
+
+        <div class="row position-fixed bottom-0 p-2 bg-body-tertiary align-items-center justify-content-center w-100">
+            <div class="col-12 text-center">
+                <a href="?page=${page - 1}" class="btn btn-primary <#if page == 0>disabled</#if>">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </a>
+                <a href="?page=${page + 1}" class="btn btn-primary <#if !hasNextPage>disabled</#if>">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+
+</div>
+</body>
+</html>
+<style>
+
+  table {
+    table-layout: fixed; /* Enforces fixed column widths */
+    width: 100%; /* Makes the table span the container width */
+  }
+</style>

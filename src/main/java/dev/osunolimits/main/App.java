@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.stripe.Stripe;
-
 import ch.qos.logback.classic.Logger;
 import dev.osunolimits.models.Action;
 import dev.osunolimits.modules.ShiinaDocs;
@@ -17,10 +15,13 @@ import dev.osunolimits.modules.utils.RobotJsonConfig;
 import dev.osunolimits.modules.utils.ThemeLoader;
 import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.monetization.MonetizationConfig;
-import dev.osunolimits.monetization.StripeMethod;
+import dev.osunolimits.monetization.routes.KofiDonoHandler;
+import dev.osunolimits.plugins.NavbarRegister;
 import dev.osunolimits.plugins.PluginLoader;
+import dev.osunolimits.plugins.models.NavbarItem;
 import dev.osunolimits.routes.ap.api.PubSubHandler;
 import dev.osunolimits.routes.ap.api.RecoverAccount;
+import dev.osunolimits.routes.ap.get.Audit;
 import dev.osunolimits.routes.ap.get.Bancho;
 import dev.osunolimits.routes.ap.get.ChatExplorer;
 import dev.osunolimits.routes.ap.get.Commands;
@@ -51,7 +52,6 @@ import dev.osunolimits.routes.api.get.auth.UpdateRelationship;
 import dev.osunolimits.routes.get.Beatmap;
 import dev.osunolimits.routes.get.Beatmaps;
 import dev.osunolimits.routes.get.Bot;
-
 import dev.osunolimits.routes.get.Leaderboard;
 import dev.osunolimits.routes.get.User;
 import dev.osunolimits.routes.get.UserScore;
@@ -71,7 +71,6 @@ import dev.osunolimits.routes.get.simple.Register;
 import dev.osunolimits.routes.get.user.Relations;
 import dev.osunolimits.routes.get.user.Settings;
 import dev.osunolimits.routes.post.HandleAvatarChange;
-import dev.osunolimits.routes.post.HandleDonate;
 import dev.osunolimits.routes.post.HandleFlagChange;
 import dev.osunolimits.routes.post.HandleLogin;
 import dev.osunolimits.routes.post.HandleLogout;
@@ -181,6 +180,7 @@ public class App {
         WebServer.get("/ap/api/handler", new PubSubHandler());
 
         WebServer.get("/ap/multiaccs", new Multiaccounts());
+        WebServer.get("/ap/audit", new Audit());
         WebServer.get("/ap/chat", new ChatExplorer());
         WebServer.get("/ap/start", new Start());
         WebServer.get("/ap/commands", new Commands());
@@ -205,11 +205,10 @@ public class App {
 
         MonetizationConfig config = new MonetizationConfig();
         if(config.ENABLED) {
-            StripeMethod.registerWebhookRoute(config);
-       
-            Stripe.apiKey = config.getStripeConfig().getClientSecret();
-            Spark.post("/donate", new HandleDonate());
-            Spark.get("/donate", new Donate(config));
+            NavbarItem item = new NavbarItem("Donate", "donate");
+            NavbarRegister.register(item);
+            Spark.post("/handlekofi", new KofiDonoHandler());
+            Spark.get("/donate", new Donate(config, item.getActNav()));
         }
 
         ShiinaDocs shiinaDocs = new ShiinaDocs();

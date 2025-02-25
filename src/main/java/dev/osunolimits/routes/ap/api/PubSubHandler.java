@@ -1,18 +1,26 @@
 package dev.osunolimits.routes.ap.api;
 
 import java.io.File;
+import java.sql.ResultSet;
 
 import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
+import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.AuditLogger;
-import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.plugins.events.admin.OnAddDonorEvent;
 import dev.osunolimits.plugins.events.admin.OnRankBeatmapEvent;
-import dev.osunolimits.routes.ap.api.PubSubModels.*;
+import dev.osunolimits.routes.ap.api.PubSubModels.AddPrivInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.AlertAllInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.GiveDonatorInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.RankOutput;
+import dev.osunolimits.routes.ap.api.PubSubModels.RemovePrivInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.RestrictInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.UnrestrictInput;
+import dev.osunolimits.routes.ap.api.PubSubModels.WipeInput;
 import dev.osunolimits.utils.osu.PermissionHelper;
 import spark.Request;
 import spark.Response;
@@ -137,12 +145,17 @@ public class PubSubHandler extends Shiina {
                 giveDonatorInput.setId(Integer.parseInt(req.queryParams("id")));
                 giveDonatorInput.setDuration(req.queryParams("duration"));
                 auditLogger.giveDonator(shiina.user, giveDonatorInput.getId(), giveDonatorInput.getDuration());
-                UserInfoCache cache = new UserInfoCache();
-                cache.reloadUser(giveDonatorInput.getId());
-
+                App.jedisPool.publish("givedonator", GSON.toJson(giveDonatorInput));
+                
+                UserInfoObject obj = GSON.fromJson(App.jedisPool.get("shiina:user:" + shiina.user.id), UserInfoObject.class); 
+                ResultSet privRs = shiina.mysql.Query("SELECT `priv` FROM `users` WHERE `id` = ?", giveDonatorInput.getId());
+                obj.priv = privRs.next() ? privRs.getInt("priv") : 0;
+                String userJson = GSON.toJson(obj);
+                App.jedisPool.set("shiina:user:" + shiina.user.id, userJson);
+                shiina.user.priv = obj.priv;
                 new OnAddDonorEvent(giveDonatorInput.getDuration(), giveDonatorInput.getId(), shiina.user.id).callListeners();
                 
-                App.jedisPool.publish("givedonator", GSON.toJson(giveDonatorInput));
+                
                 break;
             }
             case ADDPRIV: {

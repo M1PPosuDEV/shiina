@@ -36,6 +36,7 @@ public class PluginLoader {
             Map<String, PluginMetadata> pluginMetadataMap = new HashMap<>();
             Set<String> loadedPlugins = new HashSet<>();
 
+            // Step 1: Read and parse all the plugin jars
             try (DirectoryStream<Path> jarFiles = Files.newDirectoryStream(pluginsPath, "*.jar")) {
                 for (Path jarPath : jarFiles) {
                     PluginMetadata metadata = parsePluginMetadata(jarPath.toString());
@@ -45,10 +46,13 @@ public class PluginLoader {
                 }
             }
 
+            // Step 2: Sort plugins based on dependencies
             List<PluginMetadata> sortedPlugins = sortPluginsByDependency(pluginMetadataMap);
+
+            // Step 3: Load plugins one by one while respecting dependencies
             for (PluginMetadata metadata : sortedPlugins) {
                 if (!loadedPlugins.contains(metadata.name)) {
-                    loadPluginFromMetadata(metadata, loadedPlugins);
+                    loadPluginFromMetadata(metadata, loadedPlugins, pluginMetadataMap);
                 }
             }
         } catch (Exception e) {
@@ -124,10 +128,26 @@ public class PluginLoader {
         return true;
     }
 
-    private void loadPluginFromMetadata(PluginMetadata metadata, Set<String> loadedPlugins) {
+    private void loadPluginFromMetadata(PluginMetadata metadata, Set<String> loadedPlugins, Map<String, PluginMetadata> pluginMetadataMap) {
         Logger logger = (Logger) LoggerFactory.getLogger("Plugin [" + metadata.name + "]");
-        loadAndEnablePlugin(metadata.jarFilePath, metadata.mainClass, metadata.name, logger);
-        loadedPlugins.add(metadata.name);
+        try {
+            // Step 1: Load dependencies first
+            for (String dependency : metadata.dependencies) {
+                if (!loadedPlugins.contains(dependency)) {
+                    PluginMetadata depMetadata = pluginMetadataMap.get(dependency);
+                    if (depMetadata != null) {
+                        loadPluginFromMetadata(depMetadata, loadedPlugins, pluginMetadataMap);
+                    }
+                }
+            }
+
+            // Step 2: Load the plugin itself
+            loadAndEnablePlugin(metadata, logger);
+            loadedPlugins.add(metadata.name);
+            logger.info("Successfully loaded plugin: " + metadata.name);
+        } catch (Exception e) {
+            log.error("Error loading plugin [" + metadata.name + "]: ", e);
+        }
     }
 
     private static class PluginMetadata {
@@ -144,24 +164,23 @@ public class PluginLoader {
         }
     }
 
-    private void loadAndEnablePlugin(String jarFilePath, String mainClass, String pluginName, Logger logger) {
+    private void loadAndEnablePlugin(PluginMetadata metadata, Logger logger) {
         try {
-            URL[] urls = { Paths.get(jarFilePath).toUri().toURL() };
+            URL[] urls = { Paths.get(metadata.jarFilePath).toUri().toURL() };
             URLClassLoader classLoader = new URLClassLoader(urls, PluginLoader.class.getClassLoader());
 
-            Class<?> clazz = Class.forName(mainClass, true, classLoader);
+            Class<?> clazz = Class.forName(metadata.mainClass, true, classLoader);
 
             if (!ShiinaPlugin.class.isAssignableFrom(clazz)) {
-                logger.info(mainClass + " does not extend ShiinaPlugin");
+                logger.info(metadata.mainClass + " does not extend ShiinaPlugin");
                 return;
             }
 
             ShiinaPlugin pluginInstance = (ShiinaPlugin) clazz.getDeclaredConstructor().newInstance();
-            pluginInstance.onEnable(pluginName, logger);
-            logger.info("Loaded and enabled plugin");
+            pluginInstance.onEnable(metadata.name, logger);
+            logger.info("Loaded and enabled plugin: " + metadata.name);
         } catch (Exception e) {
             logger.error("Error loading and enabling plugin: ", e);
         }
     }
-
 }
