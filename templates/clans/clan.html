@@ -22,16 +22,31 @@
     <div class="container">
         <div class="card w-400 mx-auto my-4">
             <div class="card-body">  
-                <div class="row border-bottom mb-2 py-4">
-                    <div class="col col-12 col-md-6 d-flex align-items-center">
-                        <div>
-                            <h2 class="card-title m-2">${clan.name} <span class="btn btn-primary user-select-none">[${clan.tag}]</span></h2>
+                <div class=" border-bottom ">
+                    <div class="row mb-3 align-items-center">
+                    <div class="col-auto">
+                        <div class="user-collage user-collage-lg">
+                            <#assign count = 0>
+                            <#list members as collage>
+                                <#assign count = count + 1>
+                                <img 
+                                    src="${avatarServer}/${collage.id}" 
+                                    class="w-100 h-100 object-fit-cover" 
+                                    alt="User collage image"
+                                >
+                                <#if count == 4>
+                                    <#break>
+                                </#if>
+                            </#list>
                         </div>
-                        
-                        
                     </div>
-                 
-                    <div class="col col-12 col-md-6">
+                    <div class="col-auto me-auto">
+                        <h2 class="card-title m-2">
+                            ${clan.name} 
+                            <span class="badge badge-secondary me-1 fs-5 user-select-none">[${clan.tag}]</span>
+                        </h2>
+                    </div>
+                    <div class="col-12 col-md-6">
                         <#assign u = {
                             "id": clan.owner,
                             "name": clan.ownerName,
@@ -41,6 +56,7 @@
                         <#assign index=0>
                         <#include "/freemarker/models/user.ftl">
                     </div>
+                </div>
                 </div>
 
                 <div class="m-2 my-4">

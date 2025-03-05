@@ -15,6 +15,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.utils.CacheInterceptor;
+import dev.osunolimits.utils.osu.PermissionHelper;
 import lombok.Data;
 import okhttp3.Cache;
 import okhttp3.ConnectionPool;
@@ -89,6 +90,8 @@ public class LeaderboardQuery {
         @SerializedName("clan_tag")
         private String clanTag;
 
+        private boolean supporter = false;
+
         private List<Group> groups;
     }
 
@@ -137,6 +140,12 @@ public class LeaderboardQuery {
                 if(userInfo != null) {
                     item.setGroups(userInfo.getGroups());
                 }
+                item.setAccuracy((double) Math.round(item.getAccuracy() * 100) / 100);
+                if(PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
+                    userInfo.groups.add(new Group("Supporter", "🌟", "Supporter"));
+                    item.setSupporter(true);
+                }
+
             }
             return leaderboardResponse;
 

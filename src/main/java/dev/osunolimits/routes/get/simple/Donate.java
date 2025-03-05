@@ -1,5 +1,7 @@
 package dev.osunolimits.routes.get.simple;
 
+import java.sql.ResultSet;
+
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -32,7 +34,12 @@ public class Donate extends Shiina {
         }
 
         shiina.data.put("kofiConfig", MonetizationConfig.KOFI_CONFIG);
-       
+
+        ResultSet donorEndRs = shiina.mysql.Query("SELECT donor_end FROM users WHERE id = ?", shiina.user.id);
+        while (donorEndRs.next()) {
+            shiina.data.put("donorEnd", donorEndRs.getString("donor_end"));
+        }
+
         shiina.data.put("seo", new SEOBuilder("Donate", App.customization.get("homeDescription").toString()));
         return renderTemplate("donate.html", shiina, res, req);
     }

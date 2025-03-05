@@ -8,6 +8,7 @@ import java.util.Locale;
 import dev.osunolimits.main.App;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
+import dev.osunolimits.modules.XmlConfig;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.osu.OsuConverter;
@@ -16,7 +17,7 @@ import spark.Request;
 import spark.Response;
 
 public class Settings extends Shiina {
-
+    private XmlConfig config = XmlConfig.getInstance();
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -61,6 +62,7 @@ public class Settings extends Shiina {
             modes.add(dataMode);
         }
 
+        shiina.data.put("gifSupport", Boolean.parseBoolean(config.getOrDefault("donator.gif-support", "false")));
         shiina.data.put("modes", modes);    
         shiina.data.put("countries", countries);
         shiina.data.put("seo", new SEOBuilder("Settings", App.customization.get("homeDescription").toString()));

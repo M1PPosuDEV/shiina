@@ -26,6 +26,8 @@ public class ClanQuery {
         private int owner;
         private int members;
         private double competitionValue;
+
+        private List<Integer> userCollage = new ArrayList<>();
     }
 
     @Data
@@ -193,6 +195,12 @@ public class ClanQuery {
         try {
             while (rs.next()) {
                 ClanResponse response = new ClanResponse();
+
+                ResultSet userCollageRs = mysql.Query("SELECT `id` FROM users WHERE clan_id = ? ORDER BY (clan_priv = 3) DESC, id LIMIT 4;", rs.getInt("id"));
+                while (userCollageRs.next()) {
+                    response.getUserCollage().add(userCollageRs.getInt("id"));
+                }
+
                 response.setId(rs.getInt("id"));
                 response.setName(rs.getString("name"));
                 response.setTag(rs.getString("tag"));

@@ -1,113 +1,74 @@
 <#include "assets/base.html">
-<script>
-    // Base price
-    const basePrice = 5.00;
-    const discountPerMonth = 0.025; // 2.5% discount per month
 
-    // Handle the display of the player name input based on donation type
-    function handleDonationTypeChange() {
-        const donationTypeSelect = document.getElementById('donation-type');
-        const playerNameContainer = document.getElementById('player-name-container');
-
-        if (donationTypeSelect.value === 'gift') {
-            playerNameContainer.style.display = 'block';
-        } else {
-            playerNameContainer.style.display = 'none';
-        }
-    }
-
-    // Handle the range slider display for duration and price calculation
-    function updatePrice() {
-        const durationSlider = document.getElementById('duration');
-        const durationDisplay = document.getElementById('duration-display');
-        const priceDisplay = document.getElementById('price');
-        const discountDisplay = document.getElementById('discount');
-
-        const months = parseInt(durationSlider.value);
-        durationDisplay.textContent = months + " " + (months === 1 ? 'Month' : 'Months');
-
-        // Calculate total price without discount
-        const totalPriceWithoutDiscount = basePrice * months;
-
-        // Calculate discount in euros
-        let discount = 0;
-        if (months > 1) {
-            discount = totalPriceWithoutDiscount - (basePrice * (1 - (discountPerMonth * (months - 1))) * months);
-        }
-        discountDisplay.textContent = discount.toFixed(2) + "€";
-
-        // Calculate price with discount
-        let totalPrice = totalPriceWithoutDiscount;
-        if (months > 1) {
-            totalPrice = basePrice * (1 - (discountPerMonth * (months - 1))) * months;
-        }
-
-        // Round the total price to the nearest 0.50€ increment
-        const roundedPrice = Math.round(totalPrice * 2) / 2;
-
-        priceDisplay.textContent = roundedPrice.toFixed(2) + "€";
-    }
-
-    // Initial price calculation
-    window.onload = function() {
-        updatePrice();
-        handleDonationTypeChange();
-    };
-</script>
-<div class="container mb-2">
-    <div class="card w-100">
-        <div class="bg-secondary border-0 card-header text-body d-flex justify-content-between align-items-center py-4">
-            <span class="h1 fw-bold mb-0">Donate</span>
+<div class="container mb-4">
+    <div class="card">
+        <div class="card-header bg-secondary text-body text-white py-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h2 mb-0 fw-bold">Support ${c.serverName}</h1>
+                <i class="fas fa-heart fa-2x text-white-50"></i>
+            </div>
         </div>
 
-        <div class="card-body bg-body px-4">
+        <div class="card-body bg-body p-4">
             <#if error??>
-                <div class="alert alert-danger" role="alert">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     ${error}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </#if>
             <#if info??>
-                <div class="alert alert-primary" role="alert">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
                     ${info}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </#if>
 
-            <h3 class="fw-bold mb-3">Exclusive Donor Features</h3>
-            <ul class="list-group">
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-user-tag fa-fw me-3 text-warning"></i>
-                    <span>Yellow Name on Profile</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-medal fa-fw me-3 text-warning"></i>
-                    <span>Special Donor Badge</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-globe fa-fw me-3 text-warning"></i>
-                    <span>Unlimited Country Changes</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-pen fa-fw me-3 text-warning"></i>
-                    <span>Unlimited Name Changes</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-user-secret fa-fw me-3 text-warning"></i>
-                    <span>Yellow Name In-Game</span>
-                </li>
-                <li class="list-group-item d-flex align-items-center">
-                    <i class="fas fa-cogs fa-fw me-3 text-warning"></i>
-                    <span>More Features Coming Soon</span>
-                </li>
-            </ul>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="mb-4 text-primary">
+                        <i class="fas fa-gift me-2"></i>Exclusive Donor Perks
+                    </h3>
+                    <div class="list-group list-group-flush">
+                        <#include "/freemarker/donor.ftl">
+                    </div>
+                </div>
 
-            <small>${c.serverName} isn't cheap to run, a donation would help our services</small>
-            <div class="d-flex justify-content-center">
-                <iframe id='kofiframe' src='https://ko-fi.com/${kofiConfig.pageName}/?hidefeed=true&widget=true&embed=true&preview=true' style='border:none;padding:4px;background:#000000;border-radius: 15px;' height='712' title='${kofiConfig.pageName}'></iframe>
+                <div class="col-md-6">
+                    <#if userPriv?seq_contains("SUPPORTER")>
+                    <div class="alert alert-info text-center my-4">
+                        <h4 class="mb-3">Supporter Status Active</h4>
+                        <p class="mb-0">
+                            Your supporter tag expires in 
+                            <span class="fw-bold" data-timestamp-format="unix" data-timestamp="${donorEnd}"></span>
+                        </p>
+                    </div>
+                    </#if>
+
+                    <div class="card bg-secondary border-0 mb-4">
+                        <div class="card-body text-center">
+                            <p class="lead text-muted mb-3">
+                                ${c.serverName} thrives through community support. Your donation keeps our services running!
+                            </p>
+                            <div class="d-flex justify-content-center mb-3">
+                                <span class="badge bg-dark fs-5">
+                                    ${kofiConfig.donationAmount}$ = 1 Month Supporter
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <iframe 
+                            id='kofiframe' 
+                            src='https://ko-fi.com/${kofiConfig.pageName}/?hidefeed=true&widget=true&embed=true&preview=true' 
+                            class="border-0 rounded shadow-sm"
+                            style='background:#f0f0f0;padding:10px;'
+                            height='650' 
+                            title='${kofiConfig.pageName}'>
+                        </iframe>
+                    </div>
+                </div>
             </div>
-            <li class="list-group-item d-flex align-items-center">
-                <i class="fas fa-cogs fa-fw me-3 text-warning"></i>
-                <span>Each ${kofiConfig.donationAmount}$ are 1 month supporter</span>
-            </li>
         </div>
     </div>
 </div>

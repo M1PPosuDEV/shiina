@@ -63,23 +63,40 @@
                                 <li style="list-style: none;">
                                     <a href="/clan/${clan.id}?mode=${mode}" class="bg-secondary m-2 p-2 row clan-panel"
                                         style="border-radius: 5px;">
-                                        <span class="col-auto shiina-rank-font">#${offset + clanC}</span>
-                                        <span class="col col-auto d-flex align-items-center">
-                                            <button class="clan-badge btn btn-primary">[${clan.tag}]</button>
-                                            <span class="ms-2">${clan.name}</span>
+                                        <span class="col-auto d-flex align-items-center shiina-rank-font opacity-25 rounded-start bg-dark "
+                                                >#${offset + clanC}</span>
+                                        <span class="col-auto d-flex align-items-center">
+                                                    <div class="d-grid user-collage user-collage-sm">
+                                                        <#list clan.userCollage as collage>
+                                                            <img 
+                                                                src="${avatarServer}/${collage}" 
+                                                                class="w-100 h-100 object-fit-cover" 
+                                                                alt="User collage image"
+                                                            >
+                                                        </#list>
+                                                        
+                                                    </div>
+                                                </span>
+                                                
+                                                <span class="col col-auto d-flex align-items-center me-auto">
+                                            <span class="clan-badge p-1 badge badge-secondary me-1">[${clan.tag}]</span>
+                                            <span class="">${clan.name}</span>
                                         </span>
-                                        <div class="col-auto ms-auto d-flex align-items-center"
-                                            style="min-width: 200px;">
-                                            <span class="d-flex align-items-center me-3">
+                                        <div class="col-auto d-flex align-items-center">
+                                            <span class="d-flex align-items-center p-2 ms-1 opacity-25 rounded-start bg-dark">
                                                 <i class="fa-solid fa-users me-1"></i> ${clan.members}
                                             </span>
-                                            <span class="d-flex align-items-center">
-                                                ${clan.competitionValue}<#switch sort>
+                                            <span class="d-flex align-items-center ms-2">
+                                                <div class="pp-display text-info fw-bold">
+                                                ${clan.competitionValue}<span class="text-info-emphasis"><#switch sort>
                                                     <#case "totalpp">pp<#break>
                                                             <#case "avgpp">pp<#break>
                                                                     <#case "rankedscore"> Score<#break>
-                                                                            <#case "acc">%<#break>
+                                                                            <#case "acc">%<#break></span>
+
+                                                                    
                                                 </#switch>
+                                            </div>
                                             </span>
                                         </div>
                                     </a>
@@ -111,5 +128,4 @@
             </div>
         </div>
     </div>
-
     <#include "/assets/footer.html">

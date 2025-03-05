@@ -1,0 +1,30 @@
+<div class="container mb-4">
+<section id="comments" class="card mt-2 p-3">
+    <#if user??>
+    
+    <div class="m-2 pb-2">
+        <form action="/post/comment" method="post">
+            <textarea class="form-control" placeholder="Comment" name="message"></textarea>
+            <button type="submit" class="btn btn-primary mt-2">Post Comment</button>
+            <input type="hidden" value="${commentsModule.target}" name="target">
+            <input type="hidden" value="${commentsModule.id?c}" name="id">
+        </form>
+
+    </div>
+
+
+    </#if>
+
+    <input type="hidden" id="offsetComments" value="0">
+    <div id="commentLoadable"></div>
+    <script>
+        var commentsModule = {
+            target: '${commentsModule.target}',
+            id: '${commentsModule.id?c}',
+        };
+    </script>
+    <div class="m-2">
+        <button onclick="loadMoreComments(false)" id="commentButton" class="btn btn-primary mt-2">Load More</button>
+    </div>
+</div>
+</div>

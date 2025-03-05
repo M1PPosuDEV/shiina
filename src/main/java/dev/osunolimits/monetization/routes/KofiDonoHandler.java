@@ -73,6 +73,8 @@ public class KofiDonoHandler extends MySQLRoute {
 
         App.jedisPool.publish("givedonator", GSON.toJson(giveDonatorInput));
 
+        Thread.sleep(500);
+
         UserInfoObject obj = GSON.fromJson(App.jedisPool.get("shiina:user:" + userId), UserInfoObject.class);
         ResultSet privRs = shiina.mysql.Query("SELECT `priv` FROM `users` WHERE `id` = ?", giveDonatorInput.getId());
         obj.priv = privRs.next() ? privRs.getInt("priv") : 0;

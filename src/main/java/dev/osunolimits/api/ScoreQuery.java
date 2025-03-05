@@ -3,15 +3,21 @@ package dev.osunolimits.api;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import dev.osunolimits.common.MySQL;
-import dev.osunolimits.models.Beatmap;
-import dev.osunolimits.utils.osu.OsuConverter;
-import lombok.Data;
+import com.google.gson.Gson;
 
+import dev.osunolimits.common.MySQL;
+import dev.osunolimits.main.App;
+import dev.osunolimits.models.Beatmap;
+import dev.osunolimits.models.Group;
+import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.utils.osu.OsuConverter;
+import dev.osunolimits.utils.osu.PermissionHelper;
+import lombok.Data;
 
 public class ScoreQuery {
 
     private MySQL mysql;
+    private static final Gson gson = new Gson();
 
     public ScoreQuery(MySQL mysql) {
         this.mysql = mysql;
@@ -40,6 +46,8 @@ public class ScoreQuery {
         private String country;
         private int perfect;
         private Beatmap beatmap;
+        private UserInfoObject user;
+        private boolean supporter;
     }
 
     private final String SCORE_QUERY = "SELECT `scores`.`id` AS `score_id`, `score`, `pp`, `acc`, `scores`.`max_combo` AS `max_combo_scores`, `mods`, `n300`, `n100`, `n50`, `nmiss`, `ngeki`, `nkatu`, `grade`, `scores`.`status` AS `score_status`, `scores`.`mode` AS `score_mode`, `play_time`, `userid`, `users`.`name`, `users`.`country`, `perfect`, `maps`.`id` AS `bm_id`, `maps`.`set_id`, `maps`.`filename` AS `bm_title`, `maps`.`artist`, `maps`.`creator`, `maps`.`passes`, `maps`.`plays`, `maps`.`diff`, `maps`.`last_update`, `maps`.`status` AS `bm_status` FROM `scores` INNER JOIN `maps` ON `map_md5` = `maps`.`md5` LEFT JOIN `users` ON `userid` = `users`.`id` WHERE `scores`.`id` = ?;";
@@ -47,7 +55,7 @@ public class ScoreQuery {
     public Score getScore(int id) throws SQLException {
         ResultSet scoreRs = mysql.Query(SCORE_QUERY, id);
 
-        if(scoreRs.next()) {
+        if (scoreRs.next()) {
             Score score = new Score();
             score.setId(scoreRs.getInt("score_id"));
             score.setScore(scoreRs.getLong("score"));
@@ -82,12 +90,20 @@ public class ScoreQuery {
             beatmap.setLast_update(scoreRs.getString("last_update"));
             beatmap.setStatus(scoreRs.getInt("bm_status"));
 
+            UserInfoObject userInfo = gson.fromJson(App.jedisPool.get("shiina:user:" + score.getUserId()),
+                    UserInfoObject.class);
+            if (PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
+                userInfo.groups.add(new Group("Supporter", "🌟", "Supporter"));
+                score.setSupporter(true);
+            }
+            score.setUser(userInfo);
+
             score.setBeatmap(beatmap);
-            
+
             return score;
         }
 
         return null;
     }
-    
+
 }

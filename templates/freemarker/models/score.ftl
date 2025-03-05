@@ -16,26 +16,43 @@
     </#if>
 
     <#assign name = score.mapFilename?replace(".osu", "")>
+<#assign height=30>
 
-    <div class="score-container bg-secondary score-panel d-flex flex-grow-1 position-relative" style="border-radius: 5px;">
-        <div class="d-block d-lg-flex flex-grow-1">
-            <div class="col-12 col-lg-3 d-flex justify-content-center">
-                <img style="object-fit: cover; height: 100%;" class="img-fluid rounded-2 w-100" src="/api/v1/thumb?setId=${score.set_id?c}" alt="${name}">
+<#assign sanitizedName = name?replace('.osu', '')>
+
+
+<div class="score-card mb-3">
+    <div class="score-container bg-dark shadow">
+        <!-- Left side with image and gradient overlay -->
+        <div class="beatmap-image-container">
+            <div class="beatmap-image" style="background-image: url('/api/v1/thumb?setId=${score.set_id?c}')"></div>
+            <div class="image-overlay"></div>
+            <#include "/freemarker/gradeconvert.ftl">
+
+        </div>
+        
+        <!-- Right side with details -->
+        <div class="score-details text-light">
+            <!-- Action buttons moved to top-right of details section with higher z-index -->
+            <div class="score-actions">
+                <a href="/scores/${score.id}" class="action-button view-button bg-dark bg-opacity-50 text-light" title="View Score">
+                    <i class="fas fa-eye"></i>
+                </a>
+                <a href="/v1/get_replay?id=${score.id}" class="action-button download-button bg-dark bg-opacity-50 text-light" title="Download Replay">
+                    <i class="fas fa-download"></i>
+                </a>
             </div>
-            <div class="col-12 d-flex p-2 mt-2 mt-lg-0 col-lg-7 mx-2 d-flex flex-column justify-content-start justify-content-sm-between">
-                <#assign passedMods=score.mods>
-                <span class="ms-2 text-wrap">
-                    ${name}
-                    <#include "/freemarker/modconvert.ftl">
-                </span>
-                <span class="fs-5 ms-2">
-                    ${score.pp?string("0")}pp <span class="fs-6">(${score.acc?string("0.00")}%)</span> <#assign height=30> <#include "/freemarker/gradeconvert.ftl">
-                </span>
-            </div>
-            <div class="icon-container-score d-flex align-items-center">
-                <a href="/scores/${score.score_id?c}" class="icon-link-score me-3"><i data-bs-toggle="tooltip" data-bs-placement="top" title='View Score' class="fas fa-eye"></i></a>
-                <a href="${apiUrlPub}/v1/get_replay?id=${score.score_id?c}" class="icon-link-score"><i data-bs-toggle="tooltip" data-bs-placement="top" title='Download Replay' class="fas fa-download"></i></a>
+            
+            <!-- Title with increased right padding to avoid buttons -->
+            <div class="beatmap-title fw-medium">${sanitizedName}<span class="mod-pill badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25">${score.mods?join(", ")}</span></div>
+            
+            <div class="score-stats">
+                <div class="main-stats">
+                    <div class="pp-display text-info fw-bold">${score.pp?string("0")}<span class="text-info-emphasis">pp</span></div>
+                    <div class="acc-display text-light opacity-75">${score.acc?string("0.00")}<span>%</span></div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 </div>

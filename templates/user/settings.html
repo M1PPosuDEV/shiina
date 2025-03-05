@@ -20,7 +20,8 @@
 
                 <div class="shiina-pill mb-2 px-2 d-flex align-items-center">
                     <div class="shiina-pill-icon"></div>
-                    <span>Profile Picture</span>
+                    <span>Profile Picture <#if gifSupport> (GIF allowed for<span class="supporter">Supporters</span>)</#if>
+                    </span>
                 </div>
                 <div class="row px-2 pb-2">
                     <div class="col col-2 col-sm-1">
@@ -30,7 +31,7 @@
                         <form id="avatar-upload-form" data-turbo="false" action="/settings/avatar" method="post"
                             enctype="multipart/form-data" class="w-100" onsubmit="return handleAvatarUpload(event)">
                             <div class="form-group">
-                                <input type="file" name="avatar" id="avatar" accept=".png" class="form-control">
+                                <input type="file" name="avatar" id="avatar" accept=".png<#if userPriv?seq_contains("SUPPORTER")>, .gif</#if>" class="form-control">
                             </div>
                             <button type="submit" class="btn btn-primary mt-2">Upload</button>
                         </form>
@@ -73,10 +74,24 @@
                 <div class="row position-relative p-2 mt-2">
 
                     <#if !userPriv?seq_contains("SUPPORTER")>
-                        <div class="nosupporter col col-12 position-absolute">
-                            <h1>You will need <span class="supporter">Supporter</span> for name and flag change</h1>
+                    <div class="nosupporter col col-12 d-flex position-absolute  text-center p-4 rounded">
+                        <div class=" ">
+
+                            <h1 class="mb-3">
+                                You will need <span class="supporter text-warning fw-bold">Supporter</span> for further customizations
+                            </h1>
+                            <#include "/freemarker/donor.ftl">
+                            <a href="/donate" class="btn btn-primary mt-2 btn-lg px-4 py-2 rounded-pill">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                                    <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 5.68 1.33 7.88 2.5 9.42l7.5 9 7.5-9c1.17-1.54 1.04-3.74-.08-4.84z"></path>
+                                </svg>
+                                Support Us
+                            </a>
                         </div>
-                    </#if>
+                       
+                    </div>
+                </#if>
+                
                     <div class="shiina-pill m-0 mb-2 d-flex align-items-center">
                         <div class="shiina-pill-icon"></div>
                         <span>Identity Change</span>
@@ -102,8 +117,18 @@
 
                         <button type="submit" class="btn btn-primary mt-2">Change Name</button>
 
-                    </form>
-
+                    </form> 
+                    <div class="shiina-pill mt-3 m-0 mb-2 d-flex align-items-center">
+                        <div class="shiina-pill-icon"></div>
+                        <span>Banner</span>
+                    </div>
+                    <form id="banner-upload-form" data-turbo="false" action="/settings/banner" method="post"
+                            enctype="multipart/form-data" class="w-100 mt-1" onsubmit="return handleBannerUpload(event)">
+                            <div class="form-group">
+                                <input type="file" name="banner" id="banner" accept=".png" class="form-control">
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Upload</button>
+                        </form>
                 </div>
 
 

@@ -105,18 +105,38 @@
                         <#if score.status??><li class="list-group-item">Status: ${convertScoreStatus(score.status)}</li></#if>
                     </ul>
     
-                    <!-- Player Avatar and Info -->
-                    <div class="d-flex justify-content-center mt-3">
-                        <#assign u = {
-                            "id": score.userId,
-                            "name": score.username,
-                            "country": score.country,
-                            "mode", score.mode,
-                            "big": true
-                        }>
-                        <#assign index = 0>
-                        <#include "/freemarker/models/user.ftl">
-                    </div>
+                
+                </div>
+                <#assign u = {
+                    "id": score.userId,
+                    "name": score.username,
+                    "country": score.country,
+                    "mode", score.mode,
+                    "big": true
+                }>
+                <div class="col mt-3 col-12 <#if !u.isOwner??><#if !u.big??>col-md-6</#if></#if> member-entry">
+                    <a href="/u/${u.id?c}<#if u.mode??>?mode=${u.mode}</#if>" class="bg-secondary m-2 p-2 row leaderboard-panel" style="border-radius: 5px;">
+                        <span class="m-1 m-sm-0 col-auto d-flex align-items-center">
+                            <img class="flag" src="${avatarServer}/${u.id?c}" alt="">
+                        </span>
+                        <#if u.country??>
+                        <span class="m-1 m-sm-0 col-auto d-none d-lg-flex align-items-center">
+                            <img class="flag" src="/img/flags/${u.country}.svg" alt="${u.country} Flag">
+                        </span>
+                        </#if>
+                        <#if u.isOwner??>
+                            <span class="m-1 m-sm-0 col-auto d-flex align-items-center">
+                                <i class="fa-solid fa-crown fa-2xl"></i>
+                            </span>
+                        </#if>
+
+                        <span class="m-1 m-sm-0 col-auto d-flex align-items-center">
+                            <span class="ms-2">
+                                <span class="mx-2 <#if score.supporter>supporter</#if>">${score.user.name}</span>  <#if score.user.groups??> <#list score.user.groups as group><span class="groupDiv">${group.emoji} ${group.name}</span></#list></#if>
+                            </span>
+                            </span>
+                        </span>
+                    </a>
                 </div>
             </div>
             

@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS `sh_rank_cache` (
     mode INT NOT NULL,
     `rank` INT NOT NULL, 
     PRIMARY KEY (user_id, date, mode)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;

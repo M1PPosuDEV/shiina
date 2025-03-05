@@ -16,17 +16,19 @@ import java.nio.file.StandardCopyOption;
 
 import javax.servlet.MultipartConfigElement;
 
-import net.coobird.thumbnailator.Thumbnails;
-
-public class HandleAvatarChange extends Shiina {
+public class HandleBannerChange extends Shiina {
 
     private MultipartConfigElement multipartConfig;
-    private static final String AVATAR_DIR = App.env.get("AVATARFOLDER");
+    private static final String BANNER_DIR = "data/banners";
     private static final int MAX_FILE_SIZE = (Integer.parseInt(App.env.get("MAXFILESIZE"))) * 1024 * 1024;
     private static final int MAX_REQUEST_SIZE = (Integer.parseInt(App.env.get("MAXREQUESTSIZE"))) * 1024 * 1024;
 
-    public HandleAvatarChange() {
+    public HandleBannerChange() {
         multipartConfig = new MultipartConfigElement(".temp/", MAX_REQUEST_SIZE, MAX_REQUEST_SIZE, 1);
+        File bannerDir = new File(BANNER_DIR);
+        if (!bannerDir.exists()) {
+            bannerDir.mkdirs();
+        }
     }
 
     @Override
@@ -39,54 +41,36 @@ public class HandleAvatarChange extends Shiina {
             return notFound(res, shiina);
         }
 
+        if (!PermissionHelper.hasPrivileges(shiina.user.priv, PermissionHelper.Privileges.SUPPORTER)) {
+            res.redirect("/settings?error=You need to be a supporter to upload banners.");
+            return notFound(res, shiina);
+        }
+
         int userId = shiina.user.id;
         req.raw().setAttribute("org.eclipse.jetty.multipartConfig", multipartConfig);
 
+   
+
         try {
             if (req.raw().getParts().size() > 0) {
-                var part = req.raw().getPart("avatar");
+                var part = req.raw().getPart("banner");
                 if (part != null) {
                     String fileName = part.getSubmittedFileName();
 
                     if (fileName != null
-                            && (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".gif"))
+                            && fileName.toLowerCase().endsWith(".png")
                             && part.getSize() <= MAX_FILE_SIZE) {
-                        File avatarDir = new File(AVATAR_DIR);
-                        if (!avatarDir.exists()) {
-                            avatarDir.mkdirs();
-                        }
+                        
+                        Path finalBannerPath = Path.of(BANNER_DIR, userId + ".png");
 
-                        // Ensure all old avatar files (PNG, JPG, GIF) are deleted
-                        for (File file : avatarDir.listFiles()) {
-                            if (file.getName().matches(userId + "\\.(png|jpg|gif)")) {
-                                file.delete();
-                            }
-                        }
-
-                        Path finalAvatarPath = Path.of(AVATAR_DIR,
-                                userId + (fileName.toLowerCase().endsWith(".gif") ? ".gif" : ".png"));
-
-                        if (fileName.toLowerCase().endsWith(".gif") && PermissionHelper.hasPrivileges(shiina.user.priv,
-                                PermissionHelper.Privileges.SUPPORTER)) {
-                            try (InputStream input = part.getInputStream()) {
-                                Files.copy(input, finalAvatarPath, StandardCopyOption.REPLACE_EXISTING);
-                            }
-                        } else if (fileName.toLowerCase().endsWith(".png")) {
-                            try (InputStream input = part.getInputStream()) {
-                                Thumbnails.of(input)
-                                        .size(500, 500)
-                                        .outputFormat("png")
-                                        .toFile(finalAvatarPath.toFile());
-                            }
-                        } else {
-                            res.redirect("/settings?error=You need to be a supporter to use GIFs.");
-                            return notFound(res, shiina);
+                        try (InputStream input = part.getInputStream()) {
+                            Files.copy(input, finalBannerPath, StandardCopyOption.REPLACE_EXISTING);
                         }
 
                         res.header("Cache-Control", "no-cache, no-store, must-revalidate");
                         res.header("Pragma", "no-cache");
                         res.header("Expires", "0");
-                        res.redirect("/settings?info=Avatar uploaded successfully! If it didn't update, hit CTRL+F5");
+                        res.redirect("/settings?info=Banner uploaded successfully! If it didn't update, hit CTRL+F5");
                     } else {
                         res.redirect("/settings?error=Invalid file type or size exceeds limit.");
                     }

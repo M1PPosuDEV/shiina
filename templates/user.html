@@ -1,7 +1,7 @@
 <#include "assets/base.html">
 <div class="container">
     <!-- Mode Selector Card -->
-    <div class="card shiina-user-card">
+    <div class="card">
         <div class="row m-2 m-lg-0 justify-content-center justify-content-lg-start">
             <#include "/freemarker/selector.ftl">
             <div class="my-2 col-12 col-md-auto my-lg-0 col-auto d-flex align-items-center justify-content-center">
@@ -30,7 +30,7 @@
     </#if>
 
     <!-- Profile Section -->
-    <div class="card my-4 shiina-user-card">
+    <div class="card my-4">
         <div class="bg-secondary rounded-top">
             <div class="row p-4">
                 <!-- Profile Picture -->
@@ -67,6 +67,14 @@
                 </div>
             </div>
         </div>
+        <#if uprivs?seq_contains("SUPPORTER")>
+        <div class="row">
+            <div class="col col-12">
+                <img class="shiina-banner" src="/banner/${id?c}" alt="">
+            </div>
+        </div>
+        </#if>
+
         <div class="shiina-pill mx-1 mb-4 my-2 mx-md-4 d-flex align-items-center">
             <div class="shiina-pill-icon"></div>
             <span>Rankings</span>

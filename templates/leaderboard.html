@@ -82,38 +82,85 @@
                                 <#list leaderboard as player>
 
                                     <li style="list-style: none;">
-                                        <a href="/u/${player.playerId?c}?mode=${mode}" class="bg-secondary m-2 p-2 row leaderboard-panel style="border-radius: 5px;">
+                                        <a href="/u/${player.playerId?c}?mode=${mode}" class="bg-secondary m-2 p-2 justify-content-end row leaderboard-panel style="border-radius: 5px;">
+                                            <span class="col-auto d-flex align-items-center opacity-25 shiina-rank-font rounded-start bg-dark "
+                                                >#${offset
+                                                + leaderboardC}</span>
                                             <span class="col-auto d-flex align-items-center"><img class="flag"
                                                 src="${avatarServer}/${player.playerId?c}"
                                                 alt=""></span>
                                             <span class="col-auto d-flex align-items-center"><img class="flag"
                                                     src="/img/flags/${player.country}.svg"
                                                     alt=""></span>
-                                            <span class="col-auto d-flex align-items-center"
-                                                style="font-size: calc((var(--bs-font-size-base) + .3000rem) + .5vw);">#${offset
-                                                + leaderboardC}</span>
-                                            <span class="col-auto d-flex align-items-center">
+                                            
+                                            <span class="col-auto d-flex align-items-center me-auto">
                                                 <#if player.clanTag?? && player.clanId??>
-                                                    <button class="clan-badge btn btn-primary" >[${player.clanTag}]</button>
+                                                    <span class="clan-badge p-1 badge badge-secondary" >[${player.clanTag}]</span>
                                                 </#if>
-                                                <span class="mx-2">${player.name}</span>  <#if player.groups??> <#list player.groups as group><span class="groupDiv">${group.emoji} ${group.name}</span></#list></#if>
+                                                <span class="mx-2 <#if player.supporter>supporter</#if>">${player.name}</span>  <#if player.groups??> <#list player.groups as group><span class="groupDiv">${group.emoji} ${group.name}</span></#list></#if>
                                             </span>
 
-                                            <div class="col-auto ms-auto d-flex align-items-center">
+                                            <div class="col-auto d-flex opacity-50 align-items-center leaderboard-additional-stats">
+                                                <#if sort != "pp" && player.pp??>
+                                                    <div class="leaderboard-additional-stat ms-1">
+                                                        <span class="leaderboard-additional-stat-value text-info">${player.pp?string("0")}</span>
+                                                        <span class="leaderboard-additional-stat-label">pp</span>
+                                                    </div>
+                                                </#if>
+                                                
+                                                <#if sort != "acc" && player.accuracy??>
+                                                    <div class="leaderboard-additional-stat ms-1">
+                                                        <span class="leaderboard-additional-stat-value text-success">${player.accuracy}</span>
+                                                        <span class="leaderboard-additional-stat-label">% Acc</span>
+                                                    </div>
+                                                </#if>
+                                                
+                                                <#if sort != "tscore" && player.totalScore??>
+                                                    <div class="leaderboard-additional-stat ms-1">
+                                                        <span class="leaderboard-additional-stat-value text-warning">${player.totalScore}</span>
+                                                        <span class="leaderboard-additional-stat-label">Score</span>
+                                                    </div>
+                                                </#if>
+                                     
+                                            </div>
 
-                                                <#switch sort>
-                                                    <#case "pp">${player.pp}pp<#break>
-                                                    <#case "tscore">${player.totalScore} Score<#break>
-                                                    <#case "rscore">${player.rankedScore} Score<#break>
-                                                    <#case "acc">${player.accuracy}%<#break>
+                                            <div class="score-stats col-auto d-flex align-items-center ">
+                                                <div class="main-stats">
+                                                    <#switch sort>
+                                                    <#case "pp">
+                                                        <div class="pp-display text-info fw-bold">
+                                                            ${player.pp?string("0")}<span class="text-info-emphasis">pp</span>
+                                                        </div>
+                                                        <#break>
+                                                    <#case "tscore">
+                                                        <div class="pp-display text-info fw-bold">
+                                                            ${player.totalScore}<span class="text-info-emphasis"> Score</span>
+                                                        </div>
+                                                        <#break>
+                                                    <#case "rscore">
+                                                        <div class="pp-display text-info fw-bold">
+                                                            ${player.rankedScore}<span class="text-info-emphasis"> Score</span>
+                                                        </div>
+                                                        <#break>
+                                                    <#case "acc">
+                                                        <div class="pp-display text-info fw-bold">
+                                                            ${player.accuracy}<span class="text-info-emphasis">%</span>
+                                                        </div>
+                                                        <#break>
                                                     <#case "playtime">
-                                                        <#list convertPlaytime(player.playtime)?keys as key>
-                                                            ${convertPlaytime(player.playtime)[key]}
-                                                            ${key}
-                                                        </#list>
+                                                        <div class="pp-display text-info fw-bold">
+                                                            <#list convertPlaytime(player.playtime)?keys as key>
+                                                                ${convertPlaytime(player.playtime)[key]}
+                                                                <span class="text-info-emphasis">${key}</span>
+                                                            </#list>
+                                                        </div>
                                                         <#break>
                                                 </#switch>
+                                                
+                                                </div>
                                             </div>
+                                            
+                                     
                                         </a>
                                     </li>
                                     <#assign leaderboardC=leaderboardC + 1>

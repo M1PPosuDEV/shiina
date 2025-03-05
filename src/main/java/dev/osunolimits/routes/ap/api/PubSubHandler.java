@@ -146,13 +146,14 @@ public class PubSubHandler extends Shiina {
                 giveDonatorInput.setDuration(req.queryParams("duration"));
                 auditLogger.giveDonator(shiina.user, giveDonatorInput.getId(), giveDonatorInput.getDuration());
                 App.jedisPool.publish("givedonator", GSON.toJson(giveDonatorInput));
-                
-                UserInfoObject obj = GSON.fromJson(App.jedisPool.get("shiina:user:" + shiina.user.id), UserInfoObject.class); 
+                Thread.sleep(500);
+                UserInfoObject obj = GSON.fromJson(App.jedisPool.get("shiina:user:" + giveDonatorInput.getId()), UserInfoObject.class); 
                 ResultSet privRs = shiina.mysql.Query("SELECT `priv` FROM `users` WHERE `id` = ?", giveDonatorInput.getId());
                 obj.priv = privRs.next() ? privRs.getInt("priv") : 0;
                 String userJson = GSON.toJson(obj);
-                App.jedisPool.set("shiina:user:" + shiina.user.id, userJson);
-                shiina.user.priv = obj.priv;
+                App.jedisPool.del("shiina:user:" + giveDonatorInput.getId());
+                App.jedisPool.set("shiina:user:" + giveDonatorInput.getId(), userJson);
+
                 new OnAddDonorEvent(giveDonatorInput.getDuration(), giveDonatorInput.getId(), shiina.user.id).callListeners();
                 
                 

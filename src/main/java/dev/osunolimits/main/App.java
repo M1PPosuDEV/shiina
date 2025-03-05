@@ -38,7 +38,9 @@ import dev.osunolimits.routes.ap.get.users.ApUser;
 import dev.osunolimits.routes.ap.get.users.Users;
 import dev.osunolimits.routes.ap.post.ChangeTheme;
 import dev.osunolimits.routes.ap.post.ProcessManageGroup;
+import dev.osunolimits.routes.api.get.GetBanner;
 import dev.osunolimits.routes.api.get.GetBmThumbnail;
+import dev.osunolimits.routes.api.get.GetComments;
 import dev.osunolimits.routes.api.get.GetFirstPlaces;
 import dev.osunolimits.routes.api.get.GetPlaycountGraph;
 import dev.osunolimits.routes.api.get.GetPlayerScores;
@@ -71,6 +73,8 @@ import dev.osunolimits.routes.get.simple.Register;
 import dev.osunolimits.routes.get.user.Relations;
 import dev.osunolimits.routes.get.user.Settings;
 import dev.osunolimits.routes.post.HandleAvatarChange;
+import dev.osunolimits.routes.post.HandleBannerChange;
+import dev.osunolimits.routes.post.HandleComment;
 import dev.osunolimits.routes.post.HandleFlagChange;
 import dev.osunolimits.routes.post.HandleLogin;
 import dev.osunolimits.routes.post.HandleLogout;
@@ -98,7 +102,7 @@ public class App {
     public static JedisPooled jedisPool;
     public static WebServer webServer;
 
-    public static String version = "1.3bt";
+    public static String version = "1.5stage";
     public static String dbVersion = "1.5";
 
     public static void main(String[] args) throws SQLException {
@@ -152,7 +156,8 @@ public class App {
         WebServer.post("/settings/name", new HandleNameChange());
         WebServer.post("/settings/mode", new HandleModeChange());
         WebServer.post("/settings/userpage", new HandleUserpageChange());
-
+        WebServer.post("/settings/banner", new HandleBannerChange());
+        
         WebServer.get("/login", new Login());
         WebServer.get("/register", new Register());
         WebServer.get("/auth/recover", new Recover());
@@ -160,8 +165,11 @@ public class App {
         WebServer.post("/register", new HandleRegister());
         WebServer.post("/login", new HandleLogin());
         WebServer.post("/logout", new HandleLogout());
+
+        WebServer.post("/post/comment", new HandleComment());
         WebServer.notFound(new NotFound());
 
+        WebServer.get("/api/v1/get_comments", new GetComments());
         WebServer.get("/api/v1/get_first_places", new GetFirstPlaces());
         WebServer.get("/api/v1/get_player_scores", new GetPlayerScores());
         WebServer.get("/api/v1/get_rank_cache", new GetRankCache());
@@ -198,6 +206,7 @@ public class App {
         WebServer.get("/ap/user", new ApUser());
         WebServer.post("/ap/themes/change", new ChangeTheme());
 
+        WebServer.get("/banner/:id", new GetBanner());
         GroupRegistry.revalidate();
 
         UserInfoCache userInfoCache = new UserInfoCache();

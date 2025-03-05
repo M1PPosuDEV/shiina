@@ -48,6 +48,10 @@ public class ShiinaAPIHandler {
         return GSON.toJson(requiredParameters);
     }
 
+    public Gson getGson() {
+        return GSON;
+    }
+
     public String renderIssuesNoSQL(Response res) {
         res.type("application/json");
         return GSON.toJson(requiredParameters);

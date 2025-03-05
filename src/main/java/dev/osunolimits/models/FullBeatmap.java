@@ -40,6 +40,8 @@ public class FullBeatmap {
         private int userId;
         private String name;
         private String country;
+        private UserInfoObject user;
+        private boolean supporter = false;
     }
 
     @Data

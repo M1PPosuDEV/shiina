@@ -29,7 +29,7 @@ document.addEventListener("turbo:render", () => {
 
 loadEventTurbo = document.addEventListener("turbo:load", function () {
     loadUserPage();
-
+    loadComments();
     const nodesWithTimestamp = document.querySelectorAll('[data-timestamp]');
     const nodesArray = Array.from(nodesWithTimestamp);
 
@@ -182,6 +182,36 @@ function loadTurnstileIfPresent() {
         }
     });
     }
+}
+
+function loadComments(firstLoad = true) {
+    if(document.getElementById('commentLoadable') == undefined) return;
+    
+    let offset = document.getElementById('offsetComments');
+
+    if(firstLoad) {
+        offset.value = 0;
+        document.getElementById('commentLoadable').innerHTML = '';
+    }
+
+    fetch("/api/v1/get_comments?offset=" + offset.value + "&target=" + commentsModule.target+"&id=" + commentsModule.id)
+    .then(response => response.json())
+        .then(data => {
+            let container = document.getElementById('commentLoadable');
+            if(!data.hasNextPage) {
+                let btn = document.getElementById('commentButton');
+                btn.classList.add('disabled');
+            }
+
+            data.comments.forEach(comment => {
+                let element = document.createElement('div');
+                element.innerHTML = loadCommentPanel(comment.user, comment.comment, comment.time * 100000);
+                container.appendChild(element);
+            }
+            )
+
+        }
+    );
 }
 
 function loadFirstPlaces(apiUrl, firstLoad = true) {
@@ -534,54 +564,97 @@ function initPlayCountGraph() {
     
 }
 
-function loadScorePanel(grade, mapId, score, pp, acc, maxCombo, playTime, name, setId, scoreId, mods, weight = 0, weight_pp = 0) {
+function loadCommentPanel(user, comment, time) {
+    let groups = user.groups;
     let output = '';
 
-    output += '<div class="col col-12 act-entry d-flex flex-column mb-1">';
+    output += '<div class="row p-2 align-items-start">';
+    output += '<div class="col-auto">';
+    output += '<img class="flag rounded-circle" src=' + avatarServer + '/' + user.id + '" alt="" width="40" height="40">';
+    output += '</div> <div class="col"><div class="d-flex align-items-baseline gap-2">';
 
-    // Score container
-    output += '<div class="score-container bg-secondary score-panel d-flex flex-grow-1 position-relative" style="border-radius: 5px;">';
-    output += '<div class="d-block d-lg-flex flex-grow-1">';
-
-    beatmapImg = '/api/v1/thumb?setId=' + setId;
-
-    // Beatmap cover image
-    output += '<div class="col-12 col-lg-3 d-flex justify-content-center">';
-    output += '<img src="' + beatmapImg + '" class="img-fluid shiina-beatmap-thumb-user w-100" alt="">';
-    output += '</div>';
-
-    // Score details
-    output += '<div class="col-12 d-flex p-2 mt-2 mt-lg-0 col-lg-9 mx-2 d-flex flex-column justify-content-start justify-content-sm-between">';
-    output += '<span class="ms-2 text-wrap">' + name.replace('.osu', '');
-
-    if (mods.length > 0) {
-        output += ' <span class="fw-bold">+ ' + mods.join(",") + '</span>';
+    let groupsDiv = '';
+    groups.forEach(group => {
+        groupsDiv += '<span class="badge bg-secondary mx-1"><span style="margin-right:5px;">'+ group.emoji+'</span>' + group.name + '</span>';
+    });
+    let supClass ='';
+    if(comment.supporter = true) {
+        supClass += 'supporter'
     }
-
-    output += '</span>';
-    output += '<span class="fs-5 ms-2">' + pp + 'pp <span class="fs-6">(' + acc + '%)</span> ';
-
-    // Check for grade 'f' and display the Font Awesome F, otherwise show the grade image
-    if (grade.toLowerCase() === 'f') {
-        output += '<i class="fas fa-f fs-4 ms-1" style="height: 25px;"></i>';
-    } else {
-        output += '<img src="/img/ranking/ranking-' + grade + '.png" alt="Grade" class="img-fluid me-1" style="height: 30px;">';
-    }
-    if (weight > 0) {
-        output += '<span class="fs-6 float-end me-4">weighted ' + weight + '% (' + weight_pp + 'pp)</span>';
-    }
-
-    output += '</span></div>';
-
-    // Icons for view and replay
-    output += '<div class="icon-container-score d-flex align-items-center">';
-    output += '<a href="/scores/' + scoreId + '" class="icon-link-score me-3"><i data-bs-toggle="tooltip" data-bs-placement="top" title="View Score" class="fas fa-eye"></i></a>';
-    output += '<a href="' + apiUrl + '/v1/get_replay?id=' + scoreId + '" class="icon-link-score"><i data-bs-toggle="tooltip" data-bs-placement="top" title="Download Replay" class="fas fa-download"></i></a>';
-    output += '</div>';
-
+    output += '<a href="/u/' + user.id + '" class="shiina-comment-a h6 mb-0"><span class="' + supClass + '">' + user.name + '</span> ' + groupsDiv + '</a> '
+    //output += '<small class="text-muted">' + timeUntil(time, true) + '</small>';
+    output += '</div> <div class="bg-secondary text-light p-2 mt-1 rounded-2">';
+    output += comment;
     output += '</div></div></div>';
 
     return output;
+}
+
+function loadScorePanel(
+    grade, 
+    mapId, 
+    score, 
+    pp, 
+    acc, 
+    maxCombo, 
+    playTime, 
+    name, 
+    setId, 
+    scoreId, 
+    mods, 
+    weight = 0, 
+    weight_pp = 0
+) {
+    const beatmapImg = `/api/v1/thumb?setId=${setId}`;
+    const sanitizedName = name.replace('.osu', '');
+    const modsDisplay = mods.length > 0 
+        ? ` <span class="mod-pill badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25">${mods.join(", ")}</span>` 
+        : '';
+    const weightDisplay = weight > 0 
+        ? `<div class="weight-badge badge bg-info bg-opacity-10 text-info border border-info border-opacity-25" title="Weight contribution to profile pp"><span>${weight}%</span> <span class="fw-bold">${weight_pp}pp</span></div>` 
+        : '';
+    
+    // Generate grade display element with enhanced styling
+    const gradeDisplay = grade.toLowerCase() === 'f' 
+        ? '<div class="grade grade-f bg-danger bg-opacity-75 text-white"><i class="fas fa-f"></i></div>'
+        : `<div class="grade bg-opacity-75"><img src="/img/ranking/ranking-${grade}.png" alt="Grade ${grade}"></div>`;
+
+    return `
+        <div class="score-card mb-3">
+            <div class="score-container bg-dark shadow">
+                <!-- Left side with image and gradient overlay -->
+                <div class="beatmap-image-container">
+                    <div class="beatmap-image" style="background-image: url('${beatmapImg}')"></div>
+                    <div class="image-overlay"></div>
+                    ${gradeDisplay}
+                </div>
+                
+                <!-- Right side with details -->
+                <div class="score-details text-light">
+                    <!-- Action buttons moved to top-right of details section with higher z-index -->
+                    <div class="score-actions">
+                        <a href="/scores/${scoreId}" class="action-button view-button bg-dark bg-opacity-50 text-light" title="View Score">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="/api/v1/get_replay?id=${scoreId}" class="action-button download-button bg-dark bg-opacity-50 text-light" title="Download Replay">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Title with increased right padding to avoid buttons -->
+                    <div class="beatmap-title fw-medium">${sanitizedName}${modsDisplay}</div>
+                    
+                    <div class="score-stats">
+                        <div class="main-stats">
+                            <div class="pp-display text-info fw-bold">${pp}<span class="text-info-emphasis">pp</span></div>
+                            <div class="acc-display text-light opacity-75">${acc}<span>%</span></div>
+                        </div>
+                        ${weightDisplay}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function getBsPrimaryColor() {
@@ -657,6 +730,23 @@ function loadMoreScoresLast() {
     // Keep the loader visible for at least 1 second
     setTimeout(() => {
         loadLastScores(reqUrlScores, false); // Call the loading function
+
+        // Remove loader after loading process (1 second delay before executing)
+        removeLoader(button, originalText);
+    }, 500); // 1-second delay
+}
+
+function loadMoreComments() {
+    let button = document.getElementById('commentButton');
+    let originalText = button.innerHTML;
+    addLoader(button); // Add loader to button
+
+    let offset = document.getElementById('offsetComments');
+    offset.value = parseInt(offset.value) + 5;
+
+    // Keep the loader visible for at least 1 second
+    setTimeout(() => {
+        loadComments(false); // Call the loading function
 
         // Remove loader after loading process (1 second delay before executing)
         removeLoader(button, originalText);
