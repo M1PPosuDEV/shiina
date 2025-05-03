@@ -25,6 +25,7 @@ import dev.osunolimits.routes.ap.get.Audit;
 import dev.osunolimits.routes.ap.get.Bancho;
 import dev.osunolimits.routes.ap.get.ChatExplorer;
 import dev.osunolimits.routes.ap.get.Commands;
+import dev.osunolimits.routes.ap.get.ModularSettings;
 import dev.osunolimits.routes.ap.get.Multiaccounts;
 import dev.osunolimits.routes.ap.get.Start;
 import dev.osunolimits.routes.ap.get.Themes;
@@ -186,7 +187,7 @@ public class App {
         
         WebServer.get("/ap/bancho", new Bancho());
         WebServer.get("/ap/api/handler", new PubSubHandler());
-
+        WebServer.get("/ap/settings", new ModularSettings());
         WebServer.get("/ap/multiaccs", new Multiaccounts());
         WebServer.get("/ap/audit", new Audit());
         WebServer.get("/ap/chat", new ChatExplorer());

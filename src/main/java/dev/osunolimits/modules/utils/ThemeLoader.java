@@ -1,7 +1,10 @@
 package dev.osunolimits.modules.utils;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,8 +15,14 @@ import org.yaml.snakeyaml.Yaml;
 import ch.qos.logback.classic.Logger;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.Theme;
+import dev.osunolimits.utils.Validation;
+import net.logicsquad.minifier.MinificationException;
+import net.logicsquad.minifier.Minifier;
+import net.logicsquad.minifier.css.CSSMinifier;
 
 public class ThemeLoader {
+
+    public static String generatedIdent;
 
     public static Logger logger = (Logger) LoggerFactory.getLogger("ShiinaThemeLoader");
     public static ArrayList<Theme> themes = new ArrayList<Theme>();
@@ -59,13 +68,29 @@ public class ThemeLoader {
 
     public static void notIncluded(Theme theme) {
         logger.info("Loading style.css for theme [" + theme.getName() + "]");
+
+        generatedIdent = Validation.randomString(5);
+        
         File style = new File("themes/" + theme.getName() + "/style.css");
         // Copy style to /static/css/theme.css wiuth overwrite
         try {
-            Files.copy(style.toPath(), Paths.get("static/css/theme.css"),
-                    java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            File[] files = new File("static/css/").listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.getName().startsWith("theme-")) {
+                        file.delete();
+                    }
+                }
+            }
+
+            Reader input = new FileReader(style);
+            Minifier min = new CSSMinifier(input);
+            FileWriter output = new FileWriter("static/css/theme-"+generatedIdent+".css");
+            min.minify(output);
         } catch (IOException e) {
-            logger.error("Failed to copy style.css for theme [" + theme.getName() + "]");
+            logger.error("Failed to copy style-{}.css for theme [" + theme.getName() + "]", generatedIdent);
+        } catch (MinificationException e) {
+            logger.error("Failed to minify style{}-.css for theme [" + theme.getName() + "]", generatedIdent);
         }
     }
 

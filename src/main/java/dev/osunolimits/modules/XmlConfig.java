@@ -1,11 +1,13 @@
 package dev.osunolimits.modules;
+
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XmlConfig {
     private static final String FILE_PATH = "data/local-storage.xml";
@@ -57,6 +59,20 @@ public class XmlConfig {
             set(key, defaultValue);
             return defaultValue;
         }
+    }
+
+    public Map<String, String> getAllKeys() {
+        Map<String, String> keyValues = new HashMap<>();
+        Element root = document.getDocumentElement();
+        NodeList nodes = root.getChildNodes();
+
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                keyValues.put(node.getNodeName(), node.getTextContent());
+            }
+        }
+        return keyValues;
     }
 
     public void set(String key, String value) {

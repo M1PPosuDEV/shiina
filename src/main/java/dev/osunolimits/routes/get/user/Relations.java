@@ -4,10 +4,14 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import dev.osunolimits.main.App;
+import dev.osunolimits.models.Group;
+import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
+import dev.osunolimits.modules.ShiinaSupporterBadge;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
+import dev.osunolimits.utils.osu.PermissionHelper;
 import lombok.Data;
 import spark.Request;
 import spark.Response;
@@ -22,6 +26,8 @@ public class Relations extends Shiina {
         public String name;
         public long latest_activity;
         public String relationship_status;
+        public UserInfoObject user;
+        public boolean supporter = false;
     }
 
     @Override
@@ -51,6 +57,11 @@ public class Relations extends Shiina {
             relation.name = relations.getString("name");
             relation.latest_activity = relations.getLong("latest_activity");
             relation.relationship_status = relations.getString("status");
+            relation.user = new UserInfoObject(relation.id);
+            if (PermissionHelper.hasPrivileges(relation.user.priv, PermissionHelper.Privileges.SUPPORTER)) {
+                relation.user.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
+                relation.setSupporter(true);
+            }
             relationsList.add(relation);
         }
         shiina.data.put("seo", new SEOBuilder("Relations", App.customization.get("homeDescription").toString()));
