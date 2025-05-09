@@ -10,6 +10,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.models.Beatmap;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.ShiinaSupporterBadge;
 import dev.osunolimits.utils.osu.OsuConverter;
 import dev.osunolimits.utils.osu.PermissionHelper;
 import lombok.Data;
@@ -93,7 +94,7 @@ public class ScoreQuery {
             UserInfoObject userInfo = gson.fromJson(App.jedisPool.get("shiina:user:" + score.getUserId()),
                     UserInfoObject.class);
             if (PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
-                userInfo.groups.add(new Group("Supporter", "🌟", "Supporter"));
+                userInfo.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                 score.setSupporter(true);
             }
             score.setUser(userInfo);

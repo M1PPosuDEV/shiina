@@ -19,6 +19,7 @@ import dev.osunolimits.models.Group;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.ShiinaSupporterBadge;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
 import dev.osunolimits.utils.osu.LevelCalculator;
@@ -152,7 +153,7 @@ public class User extends Shiina {
         shiina.data.put("follower", follower);
 
         if(userPriv.contains(PermissionHelper.Privileges.SUPPORTER)) {
-            groups.add(new Group("Supporter", "🌟", "Supporter"));
+            groups.add(ShiinaSupporterBadge.getInstance().getGroup());
         }
 
         shiina.data.put("groups", userInfo.getGroups());

@@ -4,6 +4,7 @@ import java.io.*;
 import dev.osunolimits.main.App;
 import dev.osunolimits.main.WebServer;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
+import dev.osunolimits.modules.utils.ThemeLoader;
 import dev.osunolimits.plugins.NavbarRegister;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -12,6 +13,14 @@ import spark.Response;
 import spark.Route;
 
 public class Shiina implements Route {
+
+    private String analytics;
+    private String domain;
+
+    public Shiina() {
+        this.analytics = XmlConfig.getInstance().getOrDefault("plausible.js.url", " ");
+        this.domain  = App.env.get("DOMAIN").replaceAll("https://", "");
+    }
 
     @Override
     public Object handle(Request req, Response res) throws Exception {
@@ -24,6 +33,9 @@ public class Shiina implements Route {
         if(shiina.mysql != null) shiina.mysql.close();
         shiina.data.put("navbarItems", NavbarRegister.getItems());
         shiina.data.put("docs", ShiinaDocs.docs);
+        shiina.data.put("analytics", analytics);
+        shiina.data.put("domain", domain);
+        shiina.data.put("themeIdent", ThemeLoader.generatedIdent);
         try {
             Template templateFree = WebServer.freemarkerCfg.getTemplate(template);
             try (StringWriter out = new StringWriter()) {

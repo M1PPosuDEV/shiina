@@ -35,7 +35,7 @@ docs/
 .cache/
 .logs/
 data/
-static/css/theme.css
+static/css/theme-*.css
 createdFiles.lst
 inputFiles.lst
 target/maven-archiver/pom.properties

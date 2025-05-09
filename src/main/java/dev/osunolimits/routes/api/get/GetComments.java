@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.ShiinaSupporterBadge;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.utils.Validation;
@@ -58,7 +59,7 @@ public class GetComments extends MySQLRoute{
             comment.setComment(getCommentsResultSet.getString("comment"));
             UserInfoObject user = shiinaAPIHandler.getGson().fromJson(App.jedisPool.get("shiina:user:" + getCommentsResultSet.getInt("userid")), UserInfoObject.class); 
             if(PermissionHelper.hasPrivileges(user.priv, PermissionHelper.Privileges.SUPPORTER)) {
-                user.groups.add(new Group("Supporter", "🌟", "Supporter"));
+                user.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                 comment.setSupporter(true);
             }
             comment.setUser(user);

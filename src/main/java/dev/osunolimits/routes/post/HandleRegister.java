@@ -47,6 +47,11 @@ public class HandleRegister extends Shiina {
             shiina.data.put("error", "Missing required fields");
             return renderTemplate("register.html", shiina, res, req);
         }
+        
+        if (!username.equals(username.trim())) {
+            shiina.data.put("error", "Username cannot start or end with whitespace");
+            return renderTemplate("register.html", shiina, res, req);
+        }
     
         // Check if the username or email already exists in the database
         String emailCheckSql = "SELECT `id` FROM `users` WHERE `email` = ?";

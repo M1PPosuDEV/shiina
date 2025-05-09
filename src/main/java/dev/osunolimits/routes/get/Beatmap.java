@@ -12,6 +12,7 @@ import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
+import dev.osunolimits.modules.ShiinaSupporterBadge;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.SEOBuilder;
 import dev.osunolimits.utils.Validation;
@@ -192,7 +193,7 @@ public class Beatmap extends Shiina {
                         UserInfoObject.class);
 
                 if(PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
-                    userInfo.groups.add(new Group("Supporter", "🌟", "Supporter"));
+                    userInfo.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                     score.setSupporter(true);
                 }
                 score.setUser(userInfo);
